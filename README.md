@@ -39,7 +39,22 @@ docker run -d --name sn-pg -e POSTGRES_PASSWORD=pg -p 5432:5432 postgres:16
 **1. Database (Neon, free tier).** Create a project at neon.tech, copy the pooled
 connection string. It already ends in `?sslmode=require` — keep that.
 
-**2. Vercel.** Import the GitHub repo. Set three environment variables:
+**Region: AWS Asia Pacific (Singapore) — `aws-ap-southeast-1`.** It is the closest Neon
+region to Nepal and to the Vercel region we deploy to. **A Neon project's region cannot
+be changed after creation** — if you picked something else, create a new project and
+re-run the seeds (two minutes, since there is no field data yet).
+
+Region latency from Nepal, roughly: Singapore ~70ms · Frankfurt ~140ms · US East ~250ms.
+
+**2. Vercel.** Import the GitHub repo.
+
+⚠️ **Check the function region.** Vercel defaults *every new project* to `iad1`
+(Washington DC). With the database in Singapore that puts a Pacific crossing on every
+query — ~230ms each, multiplied by the number of queries on the page. `vercel.json` in
+this repo pins `sin1`, but confirm it took effect: **Settings → Functions → Function
+Regions** should read Singapore. Hobby allows one region, which is all we need.
+
+Then set three environment variables:
 
 | Variable | Value |
 |---|---|

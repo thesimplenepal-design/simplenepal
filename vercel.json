@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "//": "Vercel defaults NEW PROJECTS to iad1 (Washington DC). Neon is in Singapore, so leaving the default would put every database round-trip across the Pacific — roughly 230ms each, multiplied by the number of queries on the page. Both sides must sit in the same region. sin1 is also the closest Vercel region to Nepal, so dynamic requests (/capture, /search) get the short path too. Hobby allows exactly one region, which is all we need.",
+  "regions": ["sin1"]
+}
