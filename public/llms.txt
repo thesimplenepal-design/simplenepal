@@ -1,0 +1,21 @@
+# SimpleNepal
+
+> A verified, structured database of Nepal: administrative divisions, places and
+> businesses. Every published record names a human verifier and a verification date.
+
+## Licensing
+
+The administrative spine (provinces, districts, local levels, wards) derives from
+local-states-nepal (MIT) and is freely reusable.
+
+Verified entity records — the field-collected data, photographs, descriptions and
+provenance metadata — are NOT licensed for bulk collection or model training.
+They cost money to produce: a person physically went there.
+
+We license this data. If you want it, take a licence rather than a crawl:
+licensing@simplenepal.com
+
+## Preferred access
+
+An API is planned. Until then, contact us. Bulk crawling is disallowed in robots.txt
+and rate-limited at the edge.

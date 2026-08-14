@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+/*
+  SimpleNepal design system.
+  Reference work, not travel brochure. Wikipedia/Google Maps density, not magazine.
+  Crimson is present but restrained — flag crimson at full saturation reads either
+  governmental or touristic, and this is neither.
+*/
+@theme {
+  --color-paper:      #fbfaf8;
+  --color-surface:    #ffffff;
+  --color-surface-2:  #f4f2ee;
+  --color-line:       #e4e1da;
+  --color-ink:        #14130f;
+  --color-ink-2:      #55524a;
+  --color-ink-3:      #8a867c;
+  --color-crimson:    #a32a3f;
+  --color-crimson-soft: #f8eaed;
+  --color-verified:   #0f7a52;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
+  --font-ne: "Mukta", "Noto Sans Devanagari", var(--font-sans);
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper:     #131312;
+    --color-surface:   #1a1a19;
+    --color-surface-2: #232322;
+    --color-line:      #34332f;
+    --color-ink:       #f6f5f2;
+    --color-ink-2:     #bab7ae;
+    --color-ink-3:     #86837b;
+    --color-crimson:   #e8899a;
+    --color-crimson-soft: #2b1a1e;
+    --color-verified:  #4bbd8c;
+  }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* Devanagari gets its own stack and a touch more line-height — conjuncts need it. */
+.ne, [lang="ne"] { font-family: var(--font-ne); line-height: 1.75; }
+
+a { color: inherit; }
+::selection { background: var(--color-crimson-soft); }
+
+/* Focus visible everywhere — this site must be usable without a mouse. */
+:focus-visible { outline: 2px solid var(--color-crimson); outline-offset: 2px; border-radius: 3px; }
