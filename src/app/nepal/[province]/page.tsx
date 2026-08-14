@@ -7,8 +7,20 @@ import { eq, sql, asc } from 'drizzle-orm'
 import { Container, Breadcrumbs, Stat } from '@/components/ui'
 
 export const revalidate = 86400
+
+/**
+ * Prerendering the seven provinces is nice but not worth failing a deploy over.
+ * Neon's free tier suspends compute when idle, so a build that happens to run
+ * against a cold database would otherwise take the whole deployment down. On
+ * error we return nothing and every province simply renders on first request.
+ */
 export async function generateStaticParams() {
-  return (await db.select({ slug: province.slug }).from(province)).map((p) => ({ province: p.slug }))
+  try {
+    return (await db.select({ slug: province.slug }).from(province)).map((p) => ({ province: p.slug }))
+  } catch (e) {
+    console.warn('[build] province prerender skipped — database unreachable:', e)
+    return []
+  }
 }
 
 async function load(slug: string) {

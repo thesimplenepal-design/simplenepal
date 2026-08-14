@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { writeFile, mkdir } from 'node:fs/promises'
-import { join } from 'node:path'
 import { db } from '@/db'
 import { organisation, location, media, fact, source } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { nameKey, slugify, geohash } from '@/lib/np'
 import { scoreOrganisation } from '@/lib/quality'
+import { putPhoto } from '@/lib/storage'
 import { revalidatePath } from 'next/cache'
 
 export const runtime = 'nodejs'
@@ -14,9 +13,8 @@ export const runtime = 'nodejs'
 /**
  * One capture = one organisation + one location + N photos + provenance rows.
  *
- * Photos land on the local filesystem for now. That is a deliberate v0 choice:
- * swap the two lines in `savePhoto` for a Cloudflare R2 put when there are
- * enough records to justify it. Do not build the storage abstraction first.
+ * Photos go through lib/storage.ts — Vercel Blob in production, local disk in
+ * dev, so `npm run dev` needs no tokens.
  */
 export async function POST(req: Request) {
   if ((await cookies()).get('sn_admin')?.value !== 'ok') {
@@ -103,7 +101,7 @@ export async function POST(req: Request) {
 
   const photos: string[] = Array.isArray(b.photos) ? b.photos : []
   for (let i = 0; i < photos.length; i++) {
-    const url = await savePhoto(photos[i], `${org.id}-${i}`)
+    const url = await putPhoto(photos[i], `${org.id}-${i}`)
     if (!url) continue
     await db.insert(media).values({
       entityType: 'organisation', entityId: org.id, url,
@@ -160,14 +158,4 @@ function buildHours(open?: string, close?: string, closedDay?: string) {
   const out: Record<string, [string, string][]> = {}
   for (const d of days) out[d] = d === closedDay ? [] : [[open, close]]
   return out
-}
-
-async function savePhoto(dataUrl: string, name: string): Promise<string | null> {
-  const m = /^data:image\/(\w+);base64,(.+)$/.exec(dataUrl ?? '')
-  if (!m) return null
-  const dir = join(process.cwd(), 'public', 'u')
-  await mkdir(dir, { recursive: true })
-  const file = `${name}.jpg`
-  await writeFile(join(dir, file), Buffer.from(m[2], 'base64'))
-  return `/u/${file}`
 }

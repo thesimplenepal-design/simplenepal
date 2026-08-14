@@ -7,8 +7,28 @@ import { Container, Stat } from '@/components/ui'
 export const revalidate = 3600
 
 export default async function Home() {
+  // Same reasoning as generateStaticParams: a cold database at build time must
+  // not fail the deploy. Render the shell, fill it in on the next revalidation.
+  let provinces: Awaited<ReturnType<typeof loadProvinces>> = []
+  let c = { districts: 0, locals: 0, wards: 0, published: 0 }
+  try {
+    const r = await loadAll()
+    provinces = r.provinces
+    c = r.counts
+  } catch (e) {
+    console.warn('[build] homepage stats unavailable — database unreachable:', e)
+  }
+
+  return render(provinces, c)
+}
+
+function loadProvinces() {
+  return db.select().from(province).orderBy(province.id)
+}
+
+async function loadAll() {
   const [provinces, counts] = await Promise.all([
-    db.select().from(province).orderBy(province.id),
+    loadProvinces(),
     db.select({
       districts: sql<number>`(select count(*) from ${district})`,
       locals: sql<number>`(select count(*) from ${localLevel})`,
@@ -16,8 +36,13 @@ export default async function Home() {
       published: sql<number>`(select count(*) from ${organisation} where ${organisation.published} = true)`,
     }).from(sql`(select 1) as _`),
   ])
-  const c = counts[0]
+  return { provinces, counts: counts[0] }
+}
 
+function render(
+  provinces: Awaited<ReturnType<typeof loadProvinces>>,
+  c: { districts: number; locals: number; wards: number; published: number },
+) {
   return (
     <Container className="py-10">
       <h1 className="text-[34px] sm:text-[42px] font-bold tracking-tight leading-[1.1] max-w-2xl">

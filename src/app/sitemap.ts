@@ -16,6 +16,17 @@ export const revalidate = 3600
  * Submitting thin pages to Google is how programmatic sites get demoted.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  try {
+    return await build()
+  } catch (e) {
+    // A cold database at build time must not fail the deploy. Ship the homepage
+    // and let the next revalidation fill in the rest.
+    console.warn('[build] sitemap fell back to homepage only — database unreachable:', e)
+    return [{ url: SITE, changeFrequency: 'daily', priority: 1 }]
+  }
+}
+
+async function build(): Promise<MetadataRoute.Sitemap> {
   const [provinces, districts, locals, orgs] = await Promise.all([
     db.select({ slug: province.slug }).from(province),
     db.select({ p: province.slug, d: district.slug }).from(district)
