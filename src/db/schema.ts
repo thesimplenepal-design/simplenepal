@@ -13,7 +13,7 @@
  */
 import {
   pgTable, serial, integer, text, varchar, boolean, timestamp,
-  doublePrecision, jsonb, index, uniqueIndex, pgEnum, date,
+  doublePrecision, jsonb, index, uniqueIndex, pgEnum, date, numeric,
 } from 'drizzle-orm/pg-core'
 
 // ─────────────────────────────────────────────────────── enums
@@ -572,4 +572,57 @@ export const holiday = pgTable('holiday', {
 }, (t) => [
   index('holiday_date_idx').on(t.date),
   uniqueIndex('holiday_unique_idx').on(t.date, t.nameEn, t.scope, t.scopeId),
+])
+
+// ────────────────────────────────────────────────── rates: money and metal
+//
+// Two very different sourcing stories, so two different tables and two very
+// different confidence levels.
+//
+// Currency comes from Nepal Rastra Bank's official API — the central bank's own
+// published reference rate, fetched daily and stored with the date it applies
+// to. Metal rates have no public feed anywhere, so they are entered by hand,
+// weekly, and we publish only TRENDS from them. We do not republish anyone's
+// daily commercial rate; we link to the publisher for that.
+
+export const fxRate = pgTable('fx_rate', {
+  id: serial('id').primaryKey(),
+  /** The date the rate applies to, not the date we fetched it. */
+  date: date('date').notNull(),
+  iso3: varchar('iso3', { length: 3 }).notNull(),
+  currencyName: text('currency_name').notNull(),
+  /** NRB quotes some currencies per 100 units (JPY, KRW). Never assume 1. */
+  unit: integer('unit').notNull().default(1),
+  /** numeric, not float: money must not accumulate binary rounding error. */
+  buy: numeric('buy', { precision: 14, scale: 4 }).notNull(),
+  sell: numeric('sell', { precision: 14, scale: 4 }).notNull(),
+  sourceId: integer('source_id').references(() => source.id),
+  fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex('fx_rate_date_iso_idx').on(t.date, t.iso3),
+  index('fx_rate_iso_date_idx').on(t.iso3, t.date),
+])
+
+export const metalKind = pgEnum('metal_kind', ['gold_hallmark', 'gold_tejabi', 'silver'])
+
+/**
+ * A weekly observation, entered by hand from the published rate.
+ *
+ * Deliberately weekly, not daily. Fifty-two points a year is ample for monthly
+ * and annual trend charts, which is all we publish — and collecting a trend is
+ * a different act from mirroring somebody's live commercial feed.
+ */
+export const metalRate = pgTable('metal_rate', {
+  id: serial('id').primaryKey(),
+  date: date('date').notNull(),
+  metal: metalKind('metal').notNull(),
+  /** Nepali rupees per tola (11.6638 g). Whole rupees — the published unit. */
+  perTola: integer('per_tola').notNull(),
+  sourceId: integer('source_id').references(() => source.id),
+  enteredBy: text('entered_by'),
+  note: text('note'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex('metal_rate_date_metal_idx').on(t.date, t.metal),
+  index('metal_rate_metal_date_idx').on(t.metal, t.date),
 ])

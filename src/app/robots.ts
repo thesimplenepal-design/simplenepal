@@ -3,7 +3,7 @@ import { SITE_URL as SITE } from '@/lib/site'
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: '*', allow: '/', disallow: ['/capture', '/api/'] },
+      { userAgent: '*', allow: '/', disallow: ['/capture', '/rates/entry', '/api/'] },
       // Bulk crawlers that train on the data: we sell an API instead.
       // See /llms.txt for the licensing position.
       { userAgent: ['CCBot', 'ClaudeBot', 'GPTBot', 'Google-Extended', 'Bytespider'], disallow: '/' },

@@ -48,7 +48,7 @@ function render(
       <h1 className="text-[34px] sm:text-[42px] font-bold tracking-tight leading-[1.1] max-w-2xl">
         Nepal, made simple.
       </h1>
-      <p className="mt-4 text-[17px] text-[--color-ink-2] max-w-2xl leading-relaxed">
+      <p className="mt-4 text-[17px] text-[var(--color-ink-2)] max-w-2xl leading-relaxed">
         Every province, district and local level in the country — and the places inside them,
         checked in person. Each record says who verified it and when.
       </p>
@@ -60,7 +60,7 @@ function render(
         <Stat label="Wards" value={Number(c.wards).toLocaleString()} />
       </div>
 
-      <p className="text-[13px] text-[--color-ink-3] mt-3">
+      <p className="text-[13px] text-[var(--color-ink-3)] mt-3">
         {Number(c.published).toLocaleString()} verified place{Number(c.published) === 1 ? '' : 's'} published
         so far — each one visited, photographed and confirmed. We publish nothing we have not checked.
       </p>
@@ -72,14 +72,14 @@ function render(
             <Link
               href={`/nepal/${p.slug}`}
               className="flex items-baseline justify-between gap-3 no-underline rounded-xl border
-                         border-[--color-line] bg-[--color-surface] px-4 py-3
-                         hover:border-[--color-crimson] transition-colors"
+                         border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3
+                         hover:border-[var(--color-crimson)] transition-colors"
             >
               <span>
                 <span className="font-medium">{p.nameEn}</span>
-                <span className="ne text-[--color-ink-3] text-[13.5px] ml-2">{p.nameNe}</span>
+                <span className="ne text-[var(--color-ink-3)] text-[13.5px] ml-2">{p.nameNe}</span>
               </span>
-              <span className="text-[12.5px] text-[--color-ink-3] shrink-0">{p.hqEn}</span>
+              <span className="text-[12.5px] text-[var(--color-ink-3)] shrink-0">{p.hqEn}</span>
             </Link>
           </li>
         ))}

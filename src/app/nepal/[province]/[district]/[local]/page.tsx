@@ -92,8 +92,8 @@ export default async function LocalLevelPage(
 
       <h1 className="text-[30px] font-bold tracking-tight leading-tight">{l.nameEn}</h1>
       <div className="flex flex-wrap items-baseline gap-x-3 mt-1">
-        <span className="ne text-[--color-ink-2] text-[17px]">{l.nameNe}</span>
-        <span className="text-[13px] text-[--color-ink-3]">
+        <span className="ne text-[var(--color-ink-2)] text-[17px]">{l.nameNe}</span>
+        <span className="text-[13px] text-[var(--color-ink-3)]">
           {kind.en} <span className="ne">· {kind.ne}</span>
         </span>
       </div>
@@ -105,10 +105,10 @@ export default async function LocalLevelPage(
         <Stat label="Verified places" value={orgs.length} />
       </div>
 
-      {l.introEn && <p className="mt-6 text-[15.5px] text-[--color-ink-2] max-w-2xl leading-relaxed">{l.introEn}</p>}
+      {l.introEn && <p className="mt-6 text-[15.5px] text-[var(--color-ink-2)] max-w-2xl leading-relaxed">{l.introEn}</p>}
 
       {l.website && (
-        <p className="text-[13px] text-[--color-ink-3] mt-3">
+        <p className="text-[13px] text-[var(--color-ink-3)] mt-3">
           Official site: <a href={l.website} className="underline" rel="nofollow noopener">{l.website}</a>
         </p>
       )}
@@ -127,16 +127,16 @@ export default async function LocalLevelPage(
           {orgs.map((o) => (
             <li key={o.id}>
               <Link href={`/biz/${o.slug}`}
-                className="flex gap-3 no-underline rounded-xl border border-[--color-line]
-                           bg-[--color-surface] p-3 hover:border-[--color-crimson] transition-colors h-full">
+                className="flex gap-3 no-underline rounded-xl border border-[var(--color-line)]
+                           bg-[var(--color-surface)] p-3 hover:border-[var(--color-crimson)] transition-colors h-full">
                 {o.photo && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={o.photo} alt="" width={72} height={72} loading="lazy"
-                       className="w-[72px] h-[72px] rounded-lg object-cover bg-[--color-surface-2] shrink-0" />
+                       className="w-[72px] h-[72px] rounded-lg object-cover bg-[var(--color-surface-2)] shrink-0" />
                 )}
                 <div className="min-w-0">
                   <div className="font-medium text-[15px] leading-snug">{o.nameEn}</div>
-                  <div className="text-[12.5px] text-[--color-ink-3] mt-0.5">
+                  <div className="text-[12.5px] text-[var(--color-ink-3)] mt-0.5">
                     {o.catName}{o.ward ? ` · Ward ${o.ward}` : ''}
                   </div>
                   <div className="mt-1.5">

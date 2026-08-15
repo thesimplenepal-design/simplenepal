@@ -20,10 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        <header className="border-b border-[--color-line] sticky top-0 z-40 bg-[--color-paper]/90 backdrop-blur">
+        <header className="border-b border-[var(--color-line)] sticky top-0 z-40 bg-[var(--color-paper)]/90 backdrop-blur">
           <div className="mx-auto max-w-5xl px-4 h-14 flex items-center gap-4">
             <Link href="/" className="font-bold tracking-tight text-[15px] no-underline">
-              Simple<span className="text-[--color-crimson]">Nepal</span>
+              Simple<span className="text-[var(--color-crimson)]">Nepal</span>
             </Link>
             <form action="/search" className="flex-1 max-w-md">
               <input
@@ -31,24 +31,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 type="search"
                 placeholder="Search places, food, hotels…"
                 aria-label="Search"
-                className="w-full h-9 px-3 rounded-lg border border-[--color-line] bg-[--color-surface]
-                           text-[14px] placeholder:text-[--color-ink-3]"
+                className="w-full h-9 px-3 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)]
+                           text-[14px] placeholder:text-[var(--color-ink-3)]"
               />
             </form>
-            <nav className="ml-auto hidden sm:flex gap-4 text-[13.5px] text-[--color-ink-2]">
-              <Link href="/how-to" className="no-underline hover:text-[--color-crimson]">How to</Link>
-              <Link href="/gov" className="no-underline hover:text-[--color-crimson]">Government</Link>
-              <Link href="/date" className="no-underline hover:text-[--color-crimson]">Date</Link>
+            <nav className="ml-auto hidden sm:flex gap-4 text-[13.5px] text-[var(--color-ink-2)]">
+              <Link href="/how-to" className="no-underline hover:text-[var(--color-crimson)]">How to</Link>
+              <Link href="/gov" className="no-underline hover:text-[var(--color-crimson)]">Government</Link>
+              <Link href="/rates" className="no-underline hover:text-[var(--color-crimson)]">Rates</Link>
+              <Link href="/date" className="no-underline hover:text-[var(--color-crimson)]">Date</Link>
             </nav>
           </div>
         </header>
 
         <main className="flex-1">{children}</main>
 
-        <footer className="border-t border-[--color-line] mt-16">
-          <div className="mx-auto max-w-5xl px-4 py-8 text-[13px] text-[--color-ink-3] space-y-2">
+        <footer className="border-t border-[var(--color-line)] mt-16">
+          <div className="mx-auto max-w-5xl px-4 py-8 text-[13px] text-[var(--color-ink-3)] space-y-2">
             <p>
-              <strong className="text-[--color-ink-2]">SimpleNepal</strong> — every record here was
+              <strong className="text-[var(--color-ink-2)]">SimpleNepal</strong> — every record here was
               checked by a person, and says who checked it and when.
             </p>
             <p>

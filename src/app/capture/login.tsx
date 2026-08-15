@@ -25,17 +25,17 @@ export function Login() {
   return (
     <div className="mx-auto max-w-sm px-4 py-16">
       <h1 className="text-[22px] font-bold tracking-tight">Field capture</h1>
-      <p className="text-[14px] text-[--color-ink-2] mt-1.5 mb-6">
+      <p className="text-[14px] text-[var(--color-ink-2)] mt-1.5 mb-6">
         For verifying places on the road.
       </p>
       <form action={signIn} className="space-y-3">
         <input
           name="password" type="password" autoFocus autoComplete="current-password"
           placeholder="Password" aria-label="Password"
-          className="w-full h-12 px-3.5 rounded-xl border border-[--color-line]
-                     bg-[--color-surface] text-[16px]"
+          className="w-full h-12 px-3.5 rounded-xl border border-[var(--color-line)]
+                     bg-[var(--color-surface)] text-[16px]"
         />
-        <button className="w-full h-12 rounded-xl bg-[--color-crimson] text-white
+        <button className="w-full h-12 rounded-xl bg-[var(--color-crimson)] text-white
                            font-medium text-[15px]">
           Sign in
         </button>

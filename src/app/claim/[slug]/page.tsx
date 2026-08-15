@@ -12,7 +12,7 @@ export default async function Claim({ params }: { params: Promise<{ slug: string
   return (
     <Container className="py-12 max-w-lg">
       <h1 className="text-[24px] font-bold tracking-tight">Claim this page</h1>
-      <p className="mt-3 text-[15.5px] text-[--color-ink-2] leading-relaxed">
+      <p className="mt-3 text-[15.5px] text-[var(--color-ink-2)] leading-relaxed">
         Owner verification by phone is coming. For now, email{' '}
         <a className="underline" href={`mailto:claim@simplenepal.com?subject=Claim: ${slug}`}>
           claim@simplenepal.com
@@ -20,7 +20,7 @@ export default async function Claim({ params }: { params: Promise<{ slug: string
         from an address connected to the business, or call us — a person will confirm it
         with you and update the page the same day.
       </p>
-      <p className="mt-4 text-[13.5px] text-[--color-ink-3]">
+      <p className="mt-4 text-[13.5px] text-[var(--color-ink-3)]">
         Claiming is free and always will be. What you can pay for later is being found —
         never for changing what your page says about you.
       </p>

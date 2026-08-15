@@ -119,8 +119,8 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-[29px] font-bold tracking-tight leading-tight max-w-2xl">{a.nameEn}</h1>
-          {a.nameNe && <p className="ne text-[--color-ink-2] text-[17px] mt-1">{a.nameNe}</p>}
-          <p className="text-[13px] text-[--color-ink-3] mt-1.5">
+          {a.nameNe && <p className="ne text-[var(--color-ink-2)] text-[17px] mt-1">{a.nameNe}</p>}
+          <p className="text-[13px] text-[var(--color-ink-3)] mt-1.5">
             {KIND_LABEL[a.kind]} · {a.level === 'federal' ? 'Federal' : a.level === 'local' ? 'Local government' : a.level}
           </p>
         </div>
@@ -129,9 +129,9 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
       {openState && schedule && <OpenToday state={openState} schedule={schedule} />}
 
       {merged && (
-        <div className="mt-5 rounded-xl border-l-[3px] border-l-[--color-crimson] bg-[--color-crimson-soft]
-                        border border-[--color-line] px-4 py-3">
-          <p className="text-[14px] text-[--color-ink] mb-0">
+        <div className="mt-5 rounded-xl border-l-[3px] border-l-[var(--color-crimson)] bg-[var(--color-crimson-soft)]
+                        border border-[var(--color-line)] px-4 py-3">
+          <p className="text-[14px] text-[var(--color-ink)] mb-0">
             <strong>This body no longer exists.</strong> {a.successionNote}{' '}
             {successor && (
               <>Its work is now at <Link href={`/gov/${successor.slug}`} className="underline">
@@ -142,9 +142,9 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
       )}
 
       {!a.published && !merged && (
-        <div className="mt-5 rounded-xl border border-[--color-line] bg-[--color-surface-2] px-4 py-3">
-          <p className="text-[13.5px] text-[--color-ink-2] mb-0">
-            <strong className="text-[--color-ink]">Not yet confirmed.</strong> This entry comes from the
+        <div className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-2)] px-4 py-3">
+          <p className="text-[13.5px] text-[var(--color-ink-2)] mb-0">
+            <strong className="text-[var(--color-ink)]">Not yet confirmed.</strong> This entry comes from the
             source listed below and has not been checked against the Nepal Gazette or the body&rsquo;s own
             publications. We&rsquo;d rather show you that than pretend.
           </p>
@@ -152,7 +152,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
       )}
 
       {a.descriptionEn && (
-        <p className="mt-6 text-[15.5px] text-[--color-ink-2] max-w-2xl leading-relaxed">{a.descriptionEn}</p>
+        <p className="mt-6 text-[15.5px] text-[var(--color-ink-2)] max-w-2xl leading-relaxed">{a.descriptionEn}</p>
       )}
 
       {a.website && (
@@ -171,10 +171,10 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
             {children.map((ch) => (
               <li key={ch.slug}>
                 <Link href={`/gov/${ch.slug}`}
-                  className="block no-underline rounded-xl border border-[--color-line] bg-[--color-surface]
-                             px-3.5 py-2.5 hover:border-[--color-crimson] transition-colors">
+                  className="block no-underline rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
+                             px-3.5 py-2.5 hover:border-[var(--color-crimson)] transition-colors">
                   <div className="font-medium text-[14px]">{ch.nameEn}</div>
-                  {ch.nameNe && <div className="ne text-[12.5px] text-[--color-ink-3]">{ch.nameNe}</div>}
+                  {ch.nameNe && <div className="ne text-[12.5px] text-[var(--color-ink-3)]">{ch.nameNe}</div>}
                 </Link>
               </li>
             ))}
@@ -189,11 +189,11 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
             {services.map((s) => (
               <li key={s.slug}>
                 <Link href={`/how-to/${s.slug}`}
-                  className="flex items-baseline gap-3 no-underline rounded-xl border border-[--color-line]
-                             bg-[--color-surface] px-3.5 py-2.5 hover:border-[--color-crimson]">
+                  className="flex items-baseline gap-3 no-underline rounded-xl border border-[var(--color-line)]
+                             bg-[var(--color-surface)] px-3.5 py-2.5 hover:border-[var(--color-crimson)]">
                   <span className="font-medium text-[14.5px]">{s.nameEn}</span>
-                  {s.nameNe && <span className="ne text-[13px] text-[--color-ink-3]">{s.nameNe}</span>}
-                  <span className="ml-auto text-[11.5px] text-[--color-ink-3] uppercase tracking-wider">
+                  {s.nameNe && <span className="ne text-[13px] text-[var(--color-ink-3)]">{s.nameNe}</span>}
+                  <span className="ml-auto text-[11.5px] text-[var(--color-ink-3)] uppercase tracking-wider">
                     {s.role}
                   </span>
                 </Link>
@@ -210,13 +210,13 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
           </h2>
           <ul className="grid sm:grid-cols-2 gap-2.5">
             {offices.map((o) => (
-              <li key={o.id} className="rounded-xl border border-[--color-line] bg-[--color-surface] px-3.5 py-2.5">
+              <li key={o.id} className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5">
                 <div className="text-[14px] font-medium">
                   {o.localName ?? 'Office'}{o.districtName ? `, ${o.districtName}` : ''}
                 </div>
-                {o.addressEn && <div className="text-[12.5px] text-[--color-ink-3]">{o.addressEn}</div>}
+                {o.addressEn && <div className="text-[12.5px] text-[var(--color-ink-3)]">{o.addressEn}</div>}
                 {o.phones?.length ? (
-                  <div className="text-[12.5px] text-[--color-ink-2] mt-0.5">{o.phones.join(' · ')}</div>
+                  <div className="text-[12.5px] text-[var(--color-ink-2)] mt-0.5">{o.phones.join(' · ')}</div>
                 ) : null}
                 {o.pSlug && o.dSlug && o.lSlug && (
                   <Link href={`/nepal/${o.pSlug}/${o.dSlug}/${o.lSlug}`}
@@ -242,20 +242,20 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
       {facts.length > 0 && (
         <section className="mt-12">
           <h2 className="text-[15px] font-semibold tracking-tight mb-2">How we know this</h2>
-          <ul className="text-[13px] rounded-xl border border-[--color-line] bg-[--color-surface]
-                         divide-y divide-[--color-line]">
+          <ul className="text-[13px] rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
+                         divide-y divide-[var(--color-line)]">
             {facts.map((f, i) => (
               <li key={i} className="px-3.5 py-2.5">
                 <div className="flex flex-wrap gap-x-3 gap-y-1 items-baseline">
-                  <span className="font-mono text-[11.5px] text-[--color-ink-3] w-20 shrink-0">{f.field}</span>
-                  <span className="text-[--color-ink-2] min-w-0">
+                  <span className="font-mono text-[11.5px] text-[var(--color-ink-3)] w-20 shrink-0">{f.field}</span>
+                  <span className="text-[var(--color-ink-2)] min-w-0">
                     {f.url ? <a href={f.url} className="underline" rel="nofollow noopener">{f.label}</a> : f.label}
                   </span>
-                  <span className="ml-auto text-[11.5px] text-[--color-ink-3] shrink-0">
+                  <span className="ml-auto text-[11.5px] text-[var(--color-ink-3)] shrink-0">
                     confidence {f.confidence}%
                   </span>
                 </div>
-                {f.note && <p className="text-[12.5px] text-[--color-ink-3] mt-1 mb-0">{f.note}</p>}
+                {f.note && <p className="text-[12.5px] text-[var(--color-ink-3)] mt-1 mb-0">{f.note}</p>}
               </li>
             ))}
           </ul>

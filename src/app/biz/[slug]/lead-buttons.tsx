@@ -33,8 +33,8 @@ export function LeadButtons({ orgId, phones, whatsapp, website, lat, lng }: Prop
   const [revealed, setRevealed] = useState(false)
   const phone = phones[0]
   const btn =
-    'inline-flex items-center gap-2 rounded-lg border border-[--color-line] bg-[--color-surface] ' +
-    'px-3.5 h-10 text-[14px] font-medium no-underline hover:border-[--color-crimson] transition-colors'
+    'inline-flex items-center gap-2 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] ' +
+    'px-3.5 h-10 text-[14px] font-medium no-underline hover:border-[var(--color-crimson)] transition-colors'
 
   return (
     <div className="flex flex-wrap gap-2 mt-6">

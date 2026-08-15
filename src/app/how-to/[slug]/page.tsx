@@ -74,12 +74,12 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       ]} />
 
       <h1 className="text-[30px] font-bold tracking-tight leading-tight max-w-2xl">{s.nameEn}</h1>
-      {s.nameNe && <p className="ne text-[--color-ink-2] text-[18px] mt-1">{s.nameNe}</p>}
+      {s.nameNe && <p className="ne text-[var(--color-ink-2)] text-[18px] mt-1">{s.nameNe}</p>}
 
       {!s.published && (
-        <div className="mt-5 rounded-xl border border-[--color-line] bg-[--color-surface-2] px-4 py-3">
-          <p className="text-[13.5px] text-[--color-ink-2] mb-0">
-            <strong className="text-[--color-ink]">Draft — not yet confirmed at a counter.</strong>{' '}
+        <div className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-2)] px-4 py-3">
+          <p className="text-[13.5px] text-[var(--color-ink-2)] mb-0">
+            <strong className="text-[var(--color-ink)]">Draft — not yet confirmed at a counter.</strong>{' '}
             The steps below follow the official procedure, but nobody has walked through this at a real
             ward office for us yet. Treat it as a guide, not gospel, and check the sources at the bottom.
           </p>
@@ -87,38 +87,38 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       )}
 
       {s.summaryEn && (
-        <p className="mt-6 text-[16px] leading-relaxed text-[--color-ink-2] max-w-2xl">{s.summaryEn}</p>
+        <p className="mt-6 text-[16px] leading-relaxed text-[var(--color-ink-2)] max-w-2xl">{s.summaryEn}</p>
       )}
 
       {/* The four facts people actually came for */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-7">
-        <div className="rounded-xl border border-[--color-line] bg-[--color-surface] px-4 py-3">
+        <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
           <div className="text-[20px] font-semibold tracking-tight">
             {s.feeAmount === 0 ? 'Free' : s.feeAmount ? `NPR ${s.feeAmount.toLocaleString()}` : '—'}
           </div>
-          <div className="text-[11px] uppercase tracking-wider text-[--color-ink-3] mt-1">Fee</div>
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-ink-3)] mt-1">Fee</div>
         </div>
-        <div className="rounded-xl border border-[--color-line] bg-[--color-surface] px-4 py-3">
+        <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
           <div className="text-[15px] font-semibold leading-tight">{s.durationTypical ?? '—'}</div>
-          <div className="text-[11px] uppercase tracking-wider text-[--color-ink-3] mt-1">How long</div>
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-ink-3)] mt-1">How long</div>
         </div>
-        <div className="rounded-xl border border-[--color-line] bg-[--color-surface] px-4 py-3">
+        <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
           <div className="text-[15px] font-semibold leading-tight">{docs.length} document{docs.length === 1 ? '' : 's'}</div>
-          <div className="text-[11px] uppercase tracking-wider text-[--color-ink-3] mt-1">To bring</div>
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-ink-3)] mt-1">To bring</div>
         </div>
-        <div className="rounded-xl border border-[--color-line] bg-[--color-surface] px-4 py-3">
+        <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
           <div className="text-[15px] font-semibold leading-tight">
             {s.onlineUrl ? 'Yes' : 'In person'}
           </div>
-          <div className="text-[11px] uppercase tracking-wider text-[--color-ink-3] mt-1">Online?</div>
+          <div className="text-[11px] uppercase tracking-wider text-[var(--color-ink-3)] mt-1">Online?</div>
         </div>
       </div>
 
       {s.feeNote && (
-        <p className="text-[13px] text-[--color-ink-2] mt-3 max-w-2xl">
+        <p className="text-[13px] text-[var(--color-ink-2)] mt-3 max-w-2xl">
           {s.feeNote}
           {feeSource && (
-            <> <span className="text-[--color-ink-3]">— source: {feeSource.url
+            <> <span className="text-[var(--color-ink-3)]">— source: {feeSource.url
               ? <a href={feeSource.url} className="underline" rel="nofollow noopener">{feeSource.label}</a>
               : feeSource.label}</span></>
           )}
@@ -130,20 +130,20 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       {docs.length > 0 && (
         <section className="mt-10">
           <h2 className="text-[19px] font-semibold tracking-tight mb-3">What to bring</h2>
-          <ul className="rounded-xl border border-[--color-line] bg-[--color-surface] divide-y divide-[--color-line]">
+          <ul className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] divide-y divide-[var(--color-line)]">
             {docs.map((d) => (
               <li key={d.id} className="px-4 py-3">
                 <div className="flex items-baseline gap-2 flex-wrap">
                   <span className="text-[14.5px] font-medium">{d.nameEn}</span>
-                  {d.nameNe && <span className="ne text-[13px] text-[--color-ink-3]">{d.nameNe}</span>}
+                  {d.nameNe && <span className="ne text-[13px] text-[var(--color-ink-3)]">{d.nameNe}</span>}
                   {!d.required && (
-                    <span className="text-[10.5px] uppercase tracking-wider text-[--color-ink-3]
-                                     border border-[--color-line] rounded-full px-2 py-0.5">
+                    <span className="text-[10.5px] uppercase tracking-wider text-[var(--color-ink-3)]
+                                     border border-[var(--color-line)] rounded-full px-2 py-0.5">
                       if applicable
                     </span>
                   )}
                 </div>
-                {d.note && <p className="text-[13px] text-[--color-ink-2] mt-1 mb-0">{d.note}</p>}
+                {d.note && <p className="text-[13px] text-[var(--color-ink-2)] mt-1 mb-0">{d.note}</p>}
               </li>
             ))}
           </ul>
@@ -156,15 +156,15 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           <ol className="space-y-3 list-none pl-0">
             {steps.map((st) => (
               <li key={st.id} className="flex gap-3.5">
-                <span className="shrink-0 w-7 h-7 rounded-full bg-[--color-surface-2] border border-[--color-line]
+                <span className="shrink-0 w-7 h-7 rounded-full bg-[var(--color-surface-2)] border border-[var(--color-line)]
                                  text-[13px] font-semibold grid place-items-center mt-0.5">
                   {st.position}
                 </span>
                 <div className="min-w-0">
                   <div className="text-[15.5px] font-medium leading-snug">{st.titleEn}</div>
-                  {st.titleNe && <div className="ne text-[13.5px] text-[--color-ink-3]">{st.titleNe}</div>}
+                  {st.titleNe && <div className="ne text-[13.5px] text-[var(--color-ink-3)]">{st.titleNe}</div>}
                   {st.detailEn && (
-                    <p className="text-[14px] text-[--color-ink-2] mt-1 mb-0 leading-relaxed">{st.detailEn}</p>
+                    <p className="text-[14px] text-[var(--color-ink-2)] mt-1 mb-0 leading-relaxed">{st.detailEn}</p>
                   )}
                 </div>
               </li>
@@ -176,7 +176,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       {s.eligibilityEn && (
         <section className="mt-10">
           <h2 className="text-[17px] font-semibold tracking-tight mb-2">Who can apply</h2>
-          <p className="text-[14.5px] text-[--color-ink-2] max-w-2xl mb-0">{s.eligibilityEn}</p>
+          <p className="text-[14.5px] text-[var(--color-ink-2)] max-w-2xl mb-0">{s.eligibilityEn}</p>
         </section>
       )}
 
@@ -187,10 +187,10 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             {agencies.map((ag) => (
               <li key={ag.slug}>
                 <Link href={`/gov/${ag.slug}`}
-                  className="inline-block no-underline rounded-lg border border-[--color-line]
-                             bg-[--color-surface] px-3 py-2 text-[13.5px] hover:border-[--color-crimson]">
+                  className="inline-block no-underline rounded-lg border border-[var(--color-line)]
+                             bg-[var(--color-surface)] px-3 py-2 text-[13.5px] hover:border-[var(--color-crimson)]">
                   {ag.nameEn}
-                  <span className="text-[--color-ink-3] text-[11.5px] uppercase tracking-wider ml-2">{ag.role}</span>
+                  <span className="text-[var(--color-ink-3)] text-[11.5px] uppercase tracking-wider ml-2">{ag.role}</span>
                 </Link>
               </li>
             ))}
@@ -199,33 +199,33 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       )}
 
       {s.legalBasis && (
-        <p className="text-[13px] text-[--color-ink-3] mt-8">Legal basis: {s.legalBasis}</p>
+        <p className="text-[13px] text-[var(--color-ink-3)] mt-8">Legal basis: {s.legalBasis}</p>
       )}
 
       {facts.length > 0 && (
         <section className="mt-10">
           <h2 className="text-[15px] font-semibold tracking-tight mb-2">How we know this</h2>
-          <ul className="text-[13px] rounded-xl border border-[--color-line] bg-[--color-surface]
-                         divide-y divide-[--color-line]">
+          <ul className="text-[13px] rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
+                         divide-y divide-[var(--color-line)]">
             {facts.map((f, i) => (
               <li key={i} className="px-3.5 py-2.5">
                 <div className="flex flex-wrap gap-x-3 gap-y-1 items-baseline">
-                  <span className="font-mono text-[11.5px] text-[--color-ink-3] w-16 shrink-0">{f.field}</span>
-                  <span className="text-[--color-ink-2] min-w-0">
+                  <span className="font-mono text-[11.5px] text-[var(--color-ink-3)] w-16 shrink-0">{f.field}</span>
+                  <span className="text-[var(--color-ink-2)] min-w-0">
                     {f.url ? <a href={f.url} className="underline" rel="nofollow noopener">{f.label}</a> : f.label}
                   </span>
-                  <span className="ml-auto text-[11.5px] text-[--color-ink-3] shrink-0">confidence {f.confidence}%</span>
+                  <span className="ml-auto text-[11.5px] text-[var(--color-ink-3)] shrink-0">confidence {f.confidence}%</span>
                 </div>
-                {f.note && <p className="text-[12.5px] text-[--color-ink-3] mt-1 mb-0">{f.note}</p>}
+                {f.note && <p className="text-[12.5px] text-[var(--color-ink-3)] mt-1 mb-0">{f.note}</p>}
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      <div className="mt-10 rounded-xl border border-[--color-line] bg-[--color-surface] p-5 max-w-2xl">
+      <div className="mt-10 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-5 max-w-2xl">
         <h3 className="text-[15px] font-semibold mb-1.5">We are not the government</h3>
-        <p className="text-[13.5px] text-[--color-ink-2] mb-0">
+        <p className="text-[13.5px] text-[var(--color-ink-2)] mb-0">
           Procedures and fees change, sometimes without notice. Everything here shows when we last checked
           and where. <strong>Confirm before you travel</strong> — and if something is wrong,{' '}
           <a href={`mailto:fix@simplenepal.com?subject=Correction: ${encodeURIComponent(s.nameEn)}`}

@@ -9,8 +9,8 @@ import {
 type Props = { initialBsYear: number; initialBsMonth: number; initialBsDay: number; initialAd: string }
 
 const field =
-  'w-full rounded-lg border border-[--color-line] bg-[--color-surface] px-3 py-2.5 text-[15px] ' +
-  'focus:outline-none focus:border-[--color-crimson]'
+  'w-full rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2.5 text-[15px] ' +
+  'focus:outline-none focus:border-[var(--color-crimson)]'
 
 export function Converter({ initialBsYear, initialBsMonth, initialBsDay, initialAd }: Props) {
   const [dir, setDir] = useState<'bs2ad' | 'ad2bs'>('bs2ad')
@@ -27,7 +27,7 @@ export function Converter({ initialBsYear, initialBsMonth, initialBsDay, initial
 
   return (
     <div className="mt-7 max-w-2xl">
-      <div className="inline-flex rounded-lg border border-[--color-line] bg-[--color-surface-2] p-1 mb-6">
+      <div className="inline-flex rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-2)] p-1 mb-6">
         {([['bs2ad', 'BS → AD'], ['ad2bs', 'AD → BS']] as const).map(([v, label]) => (
           <button
             key={v}
@@ -36,8 +36,8 @@ export function Converter({ initialBsYear, initialBsMonth, initialBsDay, initial
             aria-pressed={dir === v}
             className={`px-4 py-1.5 rounded-md text-[13.5px] font-medium transition-colors ${
               dir === v
-                ? 'bg-[--color-surface] border border-[--color-line] shadow-sm'
-                : 'text-[--color-ink-2] border border-transparent'
+                ? 'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-sm'
+                : 'text-[var(--color-ink-2)] border border-transparent'
             }`}
           >
             {label}
@@ -49,13 +49,13 @@ export function Converter({ initialBsYear, initialBsMonth, initialBsDay, initial
         <>
           <div className="grid grid-cols-3 gap-3">
             <label className="block">
-              <span className="block text-[12px] uppercase tracking-wider text-[--color-ink-3] mb-1.5">Year</span>
+              <span className="block text-[12px] uppercase tracking-wider text-[var(--color-ink-3)] mb-1.5">Year</span>
               <input type="number" className={field} value={by} min={BS_MIN_YEAR} max={BS_MAX_YEAR}
                      inputMode="numeric"
                      onChange={(e) => setBy(Number(e.target.value))} />
             </label>
             <label className="block">
-              <span className="block text-[12px] uppercase tracking-wider text-[--color-ink-3] mb-1.5">Month</span>
+              <span className="block text-[12px] uppercase tracking-wider text-[var(--color-ink-3)] mb-1.5">Month</span>
               <select className={field} value={bm} onChange={(e) => setBm(Number(e.target.value))}>
                 {BS_MONTHS_EN.map((m, i) => (
                   <option key={m} value={i + 1}>{m} · {BS_MONTHS_NE[i]}</option>
@@ -63,13 +63,13 @@ export function Converter({ initialBsYear, initialBsMonth, initialBsDay, initial
               </select>
             </label>
             <label className="block">
-              <span className="block text-[12px] uppercase tracking-wider text-[--color-ink-3] mb-1.5">Day</span>
+              <span className="block text-[12px] uppercase tracking-wider text-[var(--color-ink-3)] mb-1.5">Day</span>
               <input type="number" className={field} value={bd} min={1} max={maxDay}
                      inputMode="numeric"
                      onChange={(e) => setBd(Number(e.target.value))} />
             </label>
           </div>
-          <p className="text-[12.5px] text-[--color-ink-3] mt-2">
+          <p className="text-[12.5px] text-[var(--color-ink-3)] mt-2">
             {BS_MONTHS_EN[bm - 1]} {by} has {maxDay} days.
           </p>
 
@@ -83,7 +83,7 @@ export function Converter({ initialBsYear, initialBsMonth, initialBsDay, initial
       ) : (
         <>
           <label className="block">
-            <span className="block text-[12px] uppercase tracking-wider text-[--color-ink-3] mb-1.5">
+            <span className="block text-[12px] uppercase tracking-wider text-[var(--color-ink-3)] mb-1.5">
               Gregorian date
             </span>
             <input type="date" className={`${field} max-w-xs`} value={ad}
@@ -111,8 +111,8 @@ function Result({ valid, big, sub, iso }: {
 }) {
   if (!valid) {
     return (
-      <div className="mt-6 rounded-xl border border-[--color-line] bg-[--color-surface-2] px-5 py-4">
-        <p className="text-[14px] text-[--color-ink-2] mb-0">
+      <div className="mt-6 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-2)] px-5 py-4">
+        <p className="text-[14px] text-[var(--color-ink-2)] mb-0">
           That date doesn&rsquo;t exist in the calendar we have. Our table runs from{' '}
           {BS_MIN_YEAR} to {BS_MAX_YEAR} BS — outside that we&rsquo;d be guessing, and a wrong date
           on a government form costs you the trip.
@@ -121,10 +121,10 @@ function Result({ valid, big, sub, iso }: {
     )
   }
   return (
-    <div className="mt-6 rounded-xl border border-[--color-line] bg-[--color-surface] px-5 py-5">
+    <div className="mt-6 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-5 py-5">
       <div className="text-[26px] font-semibold tracking-tight leading-tight">{big}</div>
-      {sub && <div className="text-[14px] text-[--color-ink-2] mt-1.5">{sub}</div>}
-      {iso && <div className="font-mono text-[12.5px] text-[--color-ink-3] mt-2.5">{iso}</div>}
+      {sub && <div className="text-[14px] text-[var(--color-ink-2)] mt-1.5">{sub}</div>}
+      {iso && <div className="font-mono text-[12.5px] text-[var(--color-ink-3)] mt-2.5">{iso}</div>}
     </div>
   )
 }

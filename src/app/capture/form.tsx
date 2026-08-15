@@ -103,14 +103,14 @@ export function CaptureForm({
     }))
   }
 
-  const input = 'w-full h-12 px-3.5 rounded-xl border border-[--color-line] bg-[--color-surface] text-[16px]'
-  const label = 'block text-[12px] uppercase tracking-wider text-[--color-ink-3] mb-1.5 mt-4'
+  const input = 'w-full h-12 px-3.5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] text-[16px]'
+  const label = 'block text-[12px] uppercase tracking-wider text-[var(--color-ink-3)] mb-1.5 mt-4'
 
   return (
     <div className="mx-auto max-w-lg px-4 py-6 pb-32">
       <div className="flex items-baseline justify-between">
         <h1 className="text-[22px] font-bold tracking-tight">Capture a place</h1>
-        <a href="/capture/queue" className="text-[13px] text-[--color-ink-3] underline">Queue</a>
+        <a href="/capture/queue" className="text-[13px] text-[var(--color-ink-3)] underline">Queue</a>
       </div>
 
       {done && (
@@ -124,21 +124,21 @@ export function CaptureForm({
       )}
 
       {/* Score meter: the operator always knows how far from publishable they are. */}
-      <div className="mt-5 rounded-xl border border-[--color-line] bg-[--color-surface] p-3.5">
+      <div className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-3.5">
         <div className="flex items-baseline justify-between mb-2">
-          <span className="text-[13px] text-[--color-ink-2]">Quality</span>
+          <span className="text-[13px] text-[var(--color-ink-2)]">Quality</span>
           <span className="text-[15px] font-semibold tabular-nums">
-            {quality.score}<span className="text-[--color-ink-3] text-[13px]">/100</span>
+            {quality.score}<span className="text-[var(--color-ink-3)] text-[13px]">/100</span>
           </span>
         </div>
-        <div className="h-1.5 rounded-full bg-[--color-surface-2] overflow-hidden">
+        <div className="h-1.5 rounded-full bg-[var(--color-surface-2)] overflow-hidden">
           <div className="h-full rounded-full transition-all"
                style={{
                  width: `${quality.score}%`,
                  background: quality.publishable ? 'var(--color-verified)' : 'var(--color-crimson)',
                }} />
         </div>
-        <p className="text-[12.5px] text-[--color-ink-3] mt-2">
+        <p className="text-[12.5px] text-[var(--color-ink-3)] mt-2">
           {quality.publishable
             ? 'Publishable — this will go live on save.'
             : `Still needed: ${quality.missing.slice(0, 4).join(', ')}`}
@@ -171,17 +171,17 @@ export function CaptureForm({
       <label className={label}>Location *</label>
       <div className="flex gap-2">
         <button onClick={getGPS} disabled={busy === 'gps'}
-                className="h-12 px-4 rounded-xl bg-[--color-crimson] text-white font-medium text-[15px] shrink-0">
+                className="h-12 px-4 rounded-xl bg-[var(--color-crimson)] text-white font-medium text-[15px] shrink-0">
           {busy === 'gps' ? 'Locating…' : 'Use GPS'}
         </button>
         <input className={input} value={f.lat} onChange={set('lat')} placeholder="lat" inputMode="decimal" />
         <input className={input} value={f.lng} onChange={set('lng')} placeholder="lng" inputMode="decimal" />
       </div>
 
-      <label className={label}>Photos * <span className="normal-case text-[--color-ink-3]">— evidence, not decoration</span></label>
+      <label className={label}>Photos * <span className="normal-case text-[var(--color-ink-3)]">— evidence, not decoration</span></label>
       <input type="file" accept="image/*" capture="environment" multiple onChange={addPhotos}
              className="block w-full text-[14px] file:h-11 file:px-4 file:mr-3 file:rounded-xl
-                        file:border-0 file:bg-[--color-surface-2] file:text-[--color-ink] file:text-[14px]" />
+                        file:border-0 file:bg-[var(--color-surface-2)] file:text-[var(--color-ink)] file:text-[14px]" />
       {f.photos.length > 0 && (
         <div className="flex gap-2 mt-2 overflow-x-auto">
           {f.photos.map((src, i) => (
@@ -203,7 +203,7 @@ export function CaptureForm({
       <label className={label}>Opening hours</label>
       <div className="flex gap-2 items-center">
         <input className={input} type="time" value={f.open} onChange={set('open')} />
-        <span className="text-[--color-ink-3]">to</span>
+        <span className="text-[var(--color-ink-3)]">to</span>
         <input className={input} type="time" value={f.close} onChange={set('close')} />
       </div>
       <select className={`${input} mt-2`} value={f.closedDay} onChange={set('closedDay')}>
@@ -212,11 +212,11 @@ export function CaptureForm({
       </select>
 
       <label className={label}>What is it actually like? *</label>
-      <textarea className="w-full min-h-28 p-3.5 rounded-xl border border-[--color-line]
-                           bg-[--color-surface] text-[16px]"
+      <textarea className="w-full min-h-28 p-3.5 rounded-xl border border-[var(--color-line)]
+                           bg-[var(--color-surface)] text-[16px]"
                 value={f.descriptionEn} onChange={set('descriptionEn')}
                 placeholder="Two or three honest sentences. What they do well, what to order, who it suits. Write what you'd tell a friend — this is the part no scraper can copy." />
-      <p className="text-[12px] text-[--color-ink-3] mt-1">{f.descriptionEn.length} chars · 200+ for full marks</p>
+      <p className="text-[12px] text-[var(--color-ink-3)] mt-1">{f.descriptionEn.length} chars · 200+ for full marks</p>
 
       <label className={label}>Website</label>
       <input className={input} value={f.website} onChange={set('website')} inputMode="url" />
@@ -228,12 +228,12 @@ export function CaptureForm({
       <input className={input} value={f.sourceNote} onChange={set('sourceNote')}
              placeholder="Visited 12 Aug, spoke to owner Ram" />
 
-      <div className="fixed bottom-0 inset-x-0 border-t border-[--color-line] bg-[--color-paper]/95
+      <div className="fixed bottom-0 inset-x-0 border-t border-[var(--color-line)] bg-[var(--color-paper)]/95
                       backdrop-blur px-4 py-3">
         <div className="mx-auto max-w-lg flex gap-3 items-center">
-          <span className="text-[13px] text-[--color-ink-3] tabular-nums">{quality.score}/100</span>
+          <span className="text-[13px] text-[var(--color-ink-3)] tabular-nums">{quality.score}/100</span>
           <button onClick={() => submit()} disabled={busy === 'save' || !f.nameEn}
-                  className="flex-1 h-12 rounded-xl bg-[--color-crimson] text-white font-medium
+                  className="flex-1 h-12 rounded-xl bg-[var(--color-crimson)] text-white font-medium
                              text-[15px] disabled:opacity-40">
             {busy === 'save' ? 'Saving…' : quality.publishable ? 'Save & publish' : 'Save as draft'}
           </button>
@@ -243,12 +243,12 @@ export function CaptureForm({
       {recent.length > 0 && (
         <section className="mt-10">
           <h2 className="text-[14px] font-semibold mb-2">Recently captured</h2>
-          <ul className="text-[13.5px] divide-y divide-[--color-line] rounded-xl border border-[--color-line]">
+          <ul className="text-[13.5px] divide-y divide-[var(--color-line)] rounded-xl border border-[var(--color-line)]">
             {recent.map((r) => (
               <li key={r.id} className="flex items-center gap-2 px-3.5 py-2">
                 <a href={`/biz/${r.slug}`} className="truncate underline">{r.nameEn}</a>
-                <span className="ml-auto tabular-nums text-[--color-ink-3]">{r.score}</span>
-                <span className={r.published ? 'text-[--color-verified]' : 'text-[--color-ink-3]'}>
+                <span className="ml-auto tabular-nums text-[var(--color-ink-3)]">{r.score}</span>
+                <span className={r.published ? 'text-[var(--color-verified)]' : 'text-[var(--color-ink-3)]'}>
                   {r.published ? 'live' : 'draft'}
                 </span>
               </li>

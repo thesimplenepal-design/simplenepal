@@ -56,7 +56,7 @@ export default async function ProvincePage({ params }: { params: Promise<{ provi
     <Container className="py-8">
       <Breadcrumbs items={[{ href: '/', label: 'Nepal' }, { label: p.nameEn }]} />
       <h1 className="text-[30px] font-bold tracking-tight leading-tight">{p.nameEn}</h1>
-      <p className="ne text-[--color-ink-2] text-[17px] mt-0.5">{p.nameNe}</p>
+      <p className="ne text-[var(--color-ink-2)] text-[17px] mt-0.5">{p.nameNe}</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
         <Stat label="Districts" value={districts.length} />
@@ -66,7 +66,7 @@ export default async function ProvincePage({ params }: { params: Promise<{ provi
       </div>
 
       {p.website && (
-        <p className="text-[13px] text-[--color-ink-3] mt-3">
+        <p className="text-[13px] text-[var(--color-ink-3)] mt-3">
           Official site: <a href={p.website} className="underline" rel="nofollow noopener">{p.website}</a>
         </p>
       )}
@@ -76,12 +76,12 @@ export default async function ProvincePage({ params }: { params: Promise<{ provi
         {districts.map((d) => (
           <li key={d.id}>
             <Link href={`/nepal/${p.slug}/${d.slug}`}
-              className="block no-underline rounded-lg border border-[--color-line] bg-[--color-surface]
-                         px-3.5 py-2.5 hover:border-[--color-crimson] transition-colors">
+              className="block no-underline rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)]
+                         px-3.5 py-2.5 hover:border-[var(--color-crimson)] transition-colors">
               <div className="font-medium text-[14.5px]">{d.nameEn}</div>
               <div className="flex items-baseline gap-2">
-                <span className="ne text-[12.5px] text-[--color-ink-3]">{d.nameNe}</span>
-                <span className="text-[11.5px] text-[--color-ink-3] ml-auto">{d.locals} local levels</span>
+                <span className="ne text-[12.5px] text-[var(--color-ink-3)]">{d.nameNe}</span>
+                <span className="text-[11.5px] text-[var(--color-ink-3)] ml-auto">{d.locals} local levels</span>
               </div>
             </Link>
           </li>

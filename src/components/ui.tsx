@@ -7,15 +7,15 @@ export function Container({ children, className = '' }: { children: React.ReactN
 
 export function Breadcrumbs({ items }: { items: { href?: string; label: string }[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="text-[13px] text-[--color-ink-3] mb-3">
+    <nav aria-label="Breadcrumb" className="text-[13px] text-[var(--color-ink-3)] mb-3">
       <ol className="flex flex-wrap items-center gap-1.5">
         {items.map((it, i) => (
           <li key={i} className="flex items-center gap-1.5">
-            {i > 0 && <span aria-hidden className="text-[--color-line]">/</span>}
+            {i > 0 && <span aria-hidden className="text-[var(--color-line)]">/</span>}
             {it.href ? (
-              <Link href={it.href} className="no-underline hover:text-[--color-crimson]">{it.label}</Link>
+              <Link href={it.href} className="no-underline hover:text-[var(--color-crimson)]">{it.label}</Link>
             ) : (
-              <span className="text-[--color-ink-2]">{it.label}</span>
+              <span className="text-[var(--color-ink-2)]">{it.label}</span>
             )}
           </li>
         ))}
@@ -34,8 +34,8 @@ export function ProvenanceChip({
 }: { verifiedAt?: Date | null; verifiedBy?: string | null; sourceLabel?: string | null }) {
   if (!verifiedAt) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-[12px] text-[--color-ink-3]
-                       border border-[--color-line] rounded-full px-2.5 py-1">
+      <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-ink-3)]
+                       border border-[var(--color-line)] rounded-full px-2.5 py-1">
         Not yet verified in person
       </span>
     )
@@ -66,18 +66,18 @@ export function ProvenanceChip({
 
 export function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-[--color-line] bg-[--color-surface] px-4 py-3">
+    <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
       <div className="text-[19px] font-semibold tracking-tight leading-tight">{value}</div>
-      <div className="text-[11px] uppercase tracking-wider text-[--color-ink-3] mt-1">{label}</div>
+      <div className="text-[11px] uppercase tracking-wider text-[var(--color-ink-3)] mt-1">{label}</div>
     </div>
   )
 }
 
 export function EmptyState({ title, body }: { title: string; body: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-[--color-line] px-5 py-8 text-center">
+    <div className="rounded-xl border border-dashed border-[var(--color-line)] px-5 py-8 text-center">
       <p className="font-medium text-[15px]">{title}</p>
-      <p className="text-[13.5px] text-[--color-ink-2] mt-1.5 max-w-md mx-auto">{body}</p>
+      <p className="text-[13.5px] text-[var(--color-ink-2)] mt-1.5 max-w-md mx-auto">{body}</p>
     </div>
   )
 }

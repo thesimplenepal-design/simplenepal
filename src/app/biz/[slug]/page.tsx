@@ -99,8 +99,8 @@ export default async function BizPage({ params }: { params: Promise<{ slug: stri
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-[30px] font-bold tracking-tight leading-tight">{o.nameEn}</h1>
-          {o.nameNe && <p className="ne text-[--color-ink-2] text-[17px] mt-0.5">{o.nameNe}</p>}
-          <p className="text-[13.5px] text-[--color-ink-3] mt-1">
+          {o.nameNe && <p className="ne text-[var(--color-ink-2)] text-[17px] mt-0.5">{o.nameNe}</p>}
+          <p className="text-[13.5px] text-[var(--color-ink-3)] mt-1">
             {cat?.nameEn}
             {l && <> · {l.nameEn}{loc?.ward ? `, Ward ${loc.ward}` : ''}</>}
           </p>
@@ -115,13 +115,13 @@ export default async function BizPage({ params }: { params: Promise<{ slug: stri
             <img key={ph.id} src={ph.url} alt={ph.caption ?? o.nameEn}
                  width={ph.width ?? 600} height={ph.height ?? 450}
                  loading={i === 0 ? 'eager' : 'lazy'}
-                 className="rounded-xl object-cover w-full aspect-[4/3] bg-[--color-surface-2]" />
+                 className="rounded-xl object-cover w-full aspect-[4/3] bg-[var(--color-surface-2)]" />
           ))}
         </div>
       )}
 
       {o.descriptionEn && (
-        <p className="mt-6 text-[16px] leading-relaxed text-[--color-ink-2] max-w-2xl">{o.descriptionEn}</p>
+        <p className="mt-6 text-[16px] leading-relaxed text-[var(--color-ink-2)] max-w-2xl">{o.descriptionEn}</p>
       )}
 
       <LeadButtons
@@ -136,7 +136,7 @@ export default async function BizPage({ params }: { params: Promise<{ slug: stri
       <div className="grid sm:grid-cols-2 gap-6 mt-9">
         <section>
           <h2 className="text-[15px] font-semibold tracking-tight mb-2.5">Details</h2>
-          <dl className="text-[14px] rounded-xl border border-[--color-line] bg-[--color-surface] divide-y divide-[--color-line]">
+          <dl className="text-[14px] rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] divide-y divide-[var(--color-line)]">
             {[
               ['Category', cat?.nameEn],
               ['Address', loc?.addressEn],
@@ -146,8 +146,8 @@ export default async function BizPage({ params }: { params: Promise<{ slug: stri
               ['Status', o.status === 'active' ? 'Open' : o.status.replace(/_/g, ' ')],
             ].filter(([, v]) => v).map(([k, v]) => (
               <div key={k as string} className="flex gap-3 px-3.5 py-2.5">
-                <dt className="text-[--color-ink-3] w-28 shrink-0">{k}</dt>
-                <dd className="text-[--color-ink]">{v as string}</dd>
+                <dt className="text-[var(--color-ink-3)] w-28 shrink-0">{k}</dt>
+                <dd className="text-[var(--color-ink)]">{v as string}</dd>
               </div>
             ))}
           </dl>
@@ -156,12 +156,12 @@ export default async function BizPage({ params }: { params: Promise<{ slug: stri
         {hours && (
           <section>
             <h2 className="text-[15px] font-semibold tracking-tight mb-2.5">Opening hours</h2>
-            <dl className="text-[14px] rounded-xl border border-[--color-line] bg-[--color-surface] divide-y divide-[--color-line]">
+            <dl className="text-[14px] rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] divide-y divide-[var(--color-line)]">
               {DAYS.map((day) => {
                 const slots = hours[day]
                 return (
                   <div key={day} className="flex gap-3 px-3.5 py-2">
-                    <dt className="text-[--color-ink-3] w-28 shrink-0">{DAY_LABEL[day]}</dt>
+                    <dt className="text-[var(--color-ink-3)] w-28 shrink-0">{DAY_LABEL[day]}</dt>
                     <dd>{slots?.length ? slots.map((s) => `${s[0]}–${s[1]}`).join(', ') : 'Closed'}</dd>
                   </div>
                 )
@@ -175,18 +175,18 @@ export default async function BizPage({ params }: { params: Promise<{ slug: stri
       {facts.length > 0 && (
         <section className="mt-10">
           <h2 className="text-[15px] font-semibold tracking-tight mb-2">How we know this</h2>
-          <p className="text-[13px] text-[--color-ink-3] mb-3 max-w-2xl">
+          <p className="text-[13px] text-[var(--color-ink-3)] mb-3 max-w-2xl">
             Every field below records who confirmed it and when. If something is wrong, that is
             on us and we will fix it — this page exists so the mistake is traceable.
           </p>
-          <ul className="text-[13px] rounded-xl border border-[--color-line] bg-[--color-surface]
-                         divide-y divide-[--color-line]">
+          <ul className="text-[13px] rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
+                         divide-y divide-[var(--color-line)]">
             {facts.map((f, i) => (
               <li key={i} className="flex flex-wrap gap-x-3 gap-y-1 px-3.5 py-2">
-                <span className="text-[--color-ink-3] w-28 shrink-0 font-mono text-[12px]">{f.field}</span>
-                <span className="text-[--color-ink-2]">{f.label ?? f.kind}</span>
+                <span className="text-[var(--color-ink-3)] w-28 shrink-0 font-mono text-[12px]">{f.field}</span>
+                <span className="text-[var(--color-ink-2)]">{f.label ?? f.kind}</span>
                 {f.verifiedAt && (
-                  <span className="text-[--color-ink-3] ml-auto">
+                  <span className="text-[var(--color-ink-3)] ml-auto">
                     {new Date(f.verifiedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     {f.verifiedBy ? ` · ${f.verifiedBy}` : ''}
                   </span>
@@ -197,7 +197,7 @@ export default async function BizPage({ params }: { params: Promise<{ slug: stri
         </section>
       )}
 
-      <p className="mt-10 text-[13px] text-[--color-ink-3]">
+      <p className="mt-10 text-[13px] text-[var(--color-ink-3)]">
         Is this your business?{' '}
         <Link href={`/claim/${o.slug}`} className="underline">Claim this page</Link> to keep it correct.
         Something wrong?{' '}

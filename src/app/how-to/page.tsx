@@ -47,7 +47,7 @@ export default async function HowToIndex() {
       <h1 className="text-[32px] sm:text-[38px] font-bold tracking-tight leading-[1.15] max-w-2xl">
         How to get things done
       </h1>
-      <p className="mt-4 text-[17px] text-[--color-ink-2] max-w-2xl leading-relaxed">
+      <p className="mt-4 text-[17px] text-[var(--color-ink-2)] max-w-2xl leading-relaxed">
         What to bring, what it costs, which office, and whether you can do it online.
         Every fact says when we last checked it and where.
       </p>
@@ -64,7 +64,7 @@ export default async function HowToIndex() {
           <section key={cat} className="mt-10">
             <h2 className="text-[18px] font-semibold tracking-tight mb-1">
               {CATEGORY_LABEL[cat]?.en ?? cat}
-              <span className="ne text-[--color-ink-3] font-normal text-[14px] ml-2">
+              <span className="ne text-[var(--color-ink-3)] font-normal text-[14px] ml-2">
                 {CATEGORY_LABEL[cat]?.ne}
               </span>
             </h2>
@@ -72,18 +72,18 @@ export default async function HowToIndex() {
               {list.map((s) => (
                 <li key={s.slug}>
                   <Link href={`/how-to/${s.slug}`}
-                    className="block no-underline rounded-xl border border-[--color-line] bg-[--color-surface]
-                               px-4 py-3 hover:border-[--color-crimson] transition-colors h-full">
+                    className="block no-underline rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
+                               px-4 py-3 hover:border-[var(--color-crimson)] transition-colors h-full">
                     <div className="flex items-baseline gap-2 flex-wrap">
                       <span className="font-medium text-[15px]">{s.nameEn}</span>
-                      {s.nameNe && <span className="ne text-[13.5px] text-[--color-ink-3]">{s.nameNe}</span>}
+                      {s.nameNe && <span className="ne text-[13.5px] text-[var(--color-ink-3)]">{s.nameNe}</span>}
                       {!s.published && (
-                        <span className="text-[10px] uppercase tracking-wider text-[--color-ink-3]
-                                         border border-[--color-line] rounded-full px-2 py-0.5">draft</span>
+                        <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-3)]
+                                         border border-[var(--color-line)] rounded-full px-2 py-0.5">draft</span>
                       )}
                     </div>
                     {s.summaryEn && (
-                      <p className="text-[13px] text-[--color-ink-2] mt-1.5 mb-0 line-clamp-2">
+                      <p className="text-[13px] text-[var(--color-ink-2)] mt-1.5 mb-0 line-clamp-2">
                         {s.summaryEn.slice(0, 130)}…
                       </p>
                     )}

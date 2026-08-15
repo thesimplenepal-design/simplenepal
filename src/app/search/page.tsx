@@ -121,21 +121,21 @@ export default async function Search({
 
       {services.length > 0 && (
         <section className="mt-7">
-          <h2 className="text-[13px] uppercase tracking-wider text-[--color-ink-3] mb-2.5">
+          <h2 className="text-[13px] uppercase tracking-wider text-[var(--color-ink-3)] mb-2.5">
             How to do this
           </h2>
           <ul className="grid sm:grid-cols-2 gap-2">
             {services.map((s2) => (
               <li key={s2.slug}>
                 <Link href={`/how-to/${s2.slug}`}
-                  className="block no-underline rounded-lg border border-[--color-line]
-                             bg-[--color-surface] px-3.5 py-2.5 hover:border-[--color-crimson] h-full">
+                  className="block no-underline rounded-lg border border-[var(--color-line)]
+                             bg-[var(--color-surface)] px-3.5 py-2.5 hover:border-[var(--color-crimson)] h-full">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="font-medium text-[14.5px]">{s2.nameEn}</span>
-                    {s2.nameNe && <span className="ne text-[12.5px] text-[--color-ink-3]">{s2.nameNe}</span>}
+                    {s2.nameNe && <span className="ne text-[12.5px] text-[var(--color-ink-3)]">{s2.nameNe}</span>}
                     {!s2.published && (
-                      <span className="text-[10px] uppercase tracking-wider text-[--color-ink-3]
-                                       border border-[--color-line] rounded-full px-2 py-0.5">draft</span>
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-3)]
+                                       border border-[var(--color-line)] rounded-full px-2 py-0.5">draft</span>
                     )}
                   </div>
                 </Link>
@@ -147,25 +147,25 @@ export default async function Search({
 
       {agencies.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-[13px] uppercase tracking-wider text-[--color-ink-3] mb-2.5">
+          <h2 className="text-[13px] uppercase tracking-wider text-[var(--color-ink-3)] mb-2.5">
             Government offices
           </h2>
           <ul className="grid sm:grid-cols-2 gap-2">
             {agencies.map((ag) => (
               <li key={ag.slug}>
                 <Link href={`/gov/${ag.slug}`}
-                  className="block no-underline rounded-lg border border-[--color-line]
-                             bg-[--color-surface] px-3.5 py-2.5 hover:border-[--color-crimson] h-full">
+                  className="block no-underline rounded-lg border border-[var(--color-line)]
+                             bg-[var(--color-surface)] px-3.5 py-2.5 hover:border-[var(--color-crimson)] h-full">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="font-medium text-[14.5px]">{ag.nameEn}</span>
                     {ag.status !== 'active' && (
-                      <span className="text-[10px] uppercase tracking-wider text-[--color-ink-3]
-                                       border border-[--color-line] rounded-full px-2 py-0.5">
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--color-ink-3)]
+                                       border border-[var(--color-line)] rounded-full px-2 py-0.5">
                         {ag.status}
                       </span>
                     )}
                   </div>
-                  <div className="text-[12.5px] text-[--color-ink-3]">
+                  <div className="text-[12.5px] text-[var(--color-ink-3)]">
                     {ag.nameNe && <span className="ne">{ag.nameNe}</span>}
                     {ag.districtName ? ` · ${ag.districtName}` : ''}
                   </div>
@@ -178,15 +178,15 @@ export default async function Search({
 
       {places.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-[13px] uppercase tracking-wider text-[--color-ink-3] mb-2.5">Places</h2>
+          <h2 className="text-[13px] uppercase tracking-wider text-[var(--color-ink-3)] mb-2.5">Places</h2>
           <ul className="grid sm:grid-cols-2 gap-2">
             {places.map((p) => (
               <li key={`${p.pSlug}/${p.dSlug}/${p.lSlug}`}>
                 <Link href={`/nepal/${p.pSlug}/${p.dSlug}/${p.lSlug}`}
-                  className="block no-underline rounded-lg border border-[--color-line]
-                             bg-[--color-surface] px-3.5 py-2.5 hover:border-[--color-crimson]">
+                  className="block no-underline rounded-lg border border-[var(--color-line)]
+                             bg-[var(--color-surface)] px-3.5 py-2.5 hover:border-[var(--color-crimson)]">
                   <div className="font-medium text-[14.5px]">{p.nameEn}</div>
-                  <div className="text-[12.5px] text-[--color-ink-3]">
+                  <div className="text-[12.5px] text-[var(--color-ink-3)]">
                     <span className="ne">{p.nameNe}</span> · {p.districtName} · {p.wards} wards
                   </div>
                 </Link>
@@ -198,21 +198,21 @@ export default async function Search({
 
       {orgs.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-[13px] uppercase tracking-wider text-[--color-ink-3] mb-2.5">Verified places</h2>
+          <h2 className="text-[13px] uppercase tracking-wider text-[var(--color-ink-3)] mb-2.5">Verified places</h2>
           <ul className="grid sm:grid-cols-2 gap-3">
             {orgs.map((o) => (
               <li key={o.slug}>
                 <Link href={`/biz/${o.slug}`}
-                  className="flex gap-3 no-underline rounded-xl border border-[--color-line]
-                             bg-[--color-surface] p-3 hover:border-[--color-crimson] h-full">
+                  className="flex gap-3 no-underline rounded-xl border border-[var(--color-line)]
+                             bg-[var(--color-surface)] p-3 hover:border-[var(--color-crimson)] h-full">
                   {o.photo && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={o.photo} alt="" width={64} height={64} loading="lazy"
-                         className="w-16 h-16 rounded-lg object-cover bg-[--color-surface-2] shrink-0" />
+                         className="w-16 h-16 rounded-lg object-cover bg-[var(--color-surface-2)] shrink-0" />
                   )}
                   <div className="min-w-0">
                     <div className="font-medium text-[15px] leading-snug">{o.nameEn}</div>
-                    <div className="text-[12.5px] text-[--color-ink-3]">
+                    <div className="text-[12.5px] text-[var(--color-ink-3)]">
                       {o.catName} · {o.placeName}
                     </div>
                     <div className="mt-1.5">

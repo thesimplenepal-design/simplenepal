@@ -32,9 +32,9 @@ export function FindMyOffice({ serviceSlug }: { serviceSlug: string }) {
   }
 
   return (
-    <section className="mt-8 rounded-xl border border-[--color-line] bg-[--color-surface] p-4 sm:p-5">
+    <section className="mt-8 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4 sm:p-5">
       <h2 className="text-[16px] font-semibold tracking-tight">Which office do I go to?</h2>
-      <p className="text-[13.5px] text-[--color-ink-2] mt-1 mb-3">
+      <p className="text-[13.5px] text-[var(--color-ink-2)] mt-1 mb-3">
         Type your municipality or rural municipality — not the nearest office, the one that actually
         serves you.
       </p>
@@ -43,14 +43,14 @@ export function FindMyOffice({ serviceSlug }: { serviceSlug: string }) {
         onChange={(e) => search(e.target.value)}
         placeholder="e.g. Kathmandu, Pokhara, Rajbiraj…"
         aria-label="Your municipality or rural municipality"
-        className="w-full h-11 px-3.5 rounded-lg border border-[--color-line] bg-[--color-paper] text-[15px]"
+        className="w-full h-11 px-3.5 rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] text-[15px]"
       />
 
-      {busy && <p className="text-[13px] text-[--color-ink-3] mt-2 mb-0">Looking…</p>}
+      {busy && <p className="text-[13px] text-[var(--color-ink-3)] mt-2 mb-0">Looking…</p>}
 
       {results && !busy && (
         results.length === 0 ? (
-          <p className="text-[13.5px] text-[--color-ink-3] mt-3 mb-0">
+          <p className="text-[13.5px] text-[var(--color-ink-3)] mt-3 mb-0">
             No match. Try the municipality name rather than the ward or the town.
           </p>
         ) : (
@@ -58,8 +58,8 @@ export function FindMyOffice({ serviceSlug }: { serviceSlug: string }) {
             {results.map((r) => (
               <li key={r.slug}>
                 <a href={`/gov/${r.slug}`}
-                   className="block no-underline rounded-lg border border-[--color-line]
-                              bg-[--color-paper] px-3.5 py-2.5 text-[14px] hover:border-[--color-crimson]">
+                   className="block no-underline rounded-lg border border-[var(--color-line)]
+                              bg-[var(--color-paper)] px-3.5 py-2.5 text-[14px] hover:border-[var(--color-crimson)]">
                   {r.label}
                 </a>
               </li>
