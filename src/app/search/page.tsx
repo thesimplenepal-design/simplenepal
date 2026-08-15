@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { db } from '@/db'
 import {
   organisation, location, category, localLevel, district, province, searchLog, media,
+  agency, service,
 } from '@/db/schema'
 import { eq, and, or, ilike, sql, desc } from 'drizzle-orm'
 import { Container, EmptyState, ProvenanceChip } from '@/components/ui'
@@ -24,7 +25,8 @@ export default async function Search({
     return (
       <Container className="py-10">
         <h1 className="text-[24px] font-bold tracking-tight mb-4">Search</h1>
-        <EmptyState title="Type something" body="Try a place, a dish, or a kind of business." />
+        <EmptyState title="Type something"
+        body="Try a place, a kind of business, a government office, or a thing you need done — “passport”, “ward office lalitpur”, “जन्म दर्ता”." />
       </Container>
     )
   }
@@ -32,7 +34,7 @@ export default async function Search({
   const key = nameKey(q)
   const like = `%${q}%`
 
-  const [orgs, places] = await Promise.all([
+  const [orgs, places, agencies, services] = await Promise.all([
     db.select({
       slug: organisation.slug, nameEn: organisation.nameEn, nameNe: organisation.nameNe,
       verifiedAt: organisation.verifiedAt, verifiedBy: organisation.verifiedBy,
@@ -75,19 +77,107 @@ export default async function Search({
         ilike(district.nameEn, like),
       ))
       .limit(20),
+
+    // Government bodies. Unpublished ones still surface — someone searching for
+    // a ministry should find our page saying "we haven't confirmed this yet"
+    // rather than nothing at all.
+    db.select({
+      slug: agency.slug, nameEn: agency.nameEn, nameNe: agency.nameNe,
+      kind: agency.kind, level: agency.level, status: agency.status,
+      published: agency.published,
+      districtName: district.nameEn,
+    })
+      .from(agency)
+      .leftJoin(district, eq(district.id, agency.districtId))
+      .where(or(
+        ilike(agency.nameEn, like),
+        ilike(agency.nameNe, like),
+      ))
+      .orderBy(desc(agency.published))
+      .limit(12),
+
+    db.select({
+      slug: service.slug, nameEn: service.nameEn, nameNe: service.nameNe,
+      summaryEn: service.summaryEn, published: service.published,
+    })
+      .from(service)
+      .where(or(
+        ilike(service.nameEn, like),
+        ilike(service.nameNe, like),
+        ilike(service.summaryEn, like),
+      ))
+      .limit(12),
   ])
 
   // Zero-result queries are the highest-signal roadmap input we have.
-  await db.insert(searchLog).values({ q, qKey: key, results: orgs.length + places.length })
+  const total = orgs.length + places.length + agencies.length + services.length
+  await db.insert(searchLog).values({ q, qKey: key, results: total })
 
   return (
     <Container className="py-8">
       <h1 className="text-[22px] font-bold tracking-tight">
-        {orgs.length + places.length} result{orgs.length + places.length === 1 ? '' : 's'} for “{q}”
+        {total} result{total === 1 ? '' : 's'} for “{q}”
       </h1>
 
-      {places.length > 0 && (
+      {services.length > 0 && (
         <section className="mt-7">
+          <h2 className="text-[13px] uppercase tracking-wider text-[--color-ink-3] mb-2.5">
+            How to do this
+          </h2>
+          <ul className="grid sm:grid-cols-2 gap-2">
+            {services.map((s2) => (
+              <li key={s2.slug}>
+                <Link href={`/how-to/${s2.slug}`}
+                  className="block no-underline rounded-lg border border-[--color-line]
+                             bg-[--color-surface] px-3.5 py-2.5 hover:border-[--color-crimson] h-full">
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span className="font-medium text-[14.5px]">{s2.nameEn}</span>
+                    {s2.nameNe && <span className="ne text-[12.5px] text-[--color-ink-3]">{s2.nameNe}</span>}
+                    {!s2.published && (
+                      <span className="text-[10px] uppercase tracking-wider text-[--color-ink-3]
+                                       border border-[--color-line] rounded-full px-2 py-0.5">draft</span>
+                    )}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {agencies.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-[13px] uppercase tracking-wider text-[--color-ink-3] mb-2.5">
+            Government offices
+          </h2>
+          <ul className="grid sm:grid-cols-2 gap-2">
+            {agencies.map((ag) => (
+              <li key={ag.slug}>
+                <Link href={`/gov/${ag.slug}`}
+                  className="block no-underline rounded-lg border border-[--color-line]
+                             bg-[--color-surface] px-3.5 py-2.5 hover:border-[--color-crimson] h-full">
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span className="font-medium text-[14.5px]">{ag.nameEn}</span>
+                    {ag.status !== 'active' && (
+                      <span className="text-[10px] uppercase tracking-wider text-[--color-ink-3]
+                                       border border-[--color-line] rounded-full px-2 py-0.5">
+                        {ag.status}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[12.5px] text-[--color-ink-3]">
+                    {ag.nameNe && <span className="ne">{ag.nameNe}</span>}
+                    {ag.districtName ? ` · ${ag.districtName}` : ''}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {places.length > 0 && (
+        <section className="mt-8">
           <h2 className="text-[13px] uppercase tracking-wider text-[--color-ink-3] mb-2.5">Places</h2>
           <ul className="grid sm:grid-cols-2 gap-2">
             {places.map((p) => (
@@ -136,7 +226,7 @@ export default async function Search({
         </section>
       )}
 
-      {orgs.length + places.length === 0 && (
+      {total === 0 && (
         <div className="mt-8">
           <EmptyState
             title={`Nothing for “${q}” yet`}

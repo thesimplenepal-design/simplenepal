@@ -8,6 +8,9 @@ import {
 } from '@/db/schema'
 import { eq, and, asc, sql } from 'drizzle-orm'
 import { Container, Breadcrumbs, Stat, EmptyState } from '@/components/ui'
+import { OpenToday } from '@/components/open-today'
+import { currentSchedule, upcomingHolidays } from '@/db/hours'
+import { evaluateOpen } from '@/lib/hours'
 import { abs } from '@/lib/site'
 
 export const revalidate = 3600
@@ -61,7 +64,14 @@ async function load(slug: string) {
     .from(fact).leftJoin(source, eq(source.id, fact.sourceId))
     .where(and(eq(fact.entityType, 'agency'), eq(fact.entityId, a.id)))
 
-  return { a, parent, successor, children, services, offices, facts }
+  // Only bodies with a public counter need an open/closed banner; a ministry
+  // headquarters is not somewhere a citizen turns up to file a form.
+  const servesPublic = offices.length > 0 && a.status === 'active'
+  const [schedule, holidays] = servesPublic
+    ? await Promise.all([currentSchedule(), upcomingHolidays()])
+    : [null, []]
+
+  return { a, parent, successor, children, services, offices, facts, schedule, holidays }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -81,7 +91,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function AgencyPage({ params }: { params: Promise<{ slug: string }> }) {
   const data = await load((await params).slug)
   if (!data) notFound()
-  const { a, parent, successor, children, services, offices, facts } = data
+  const { a, parent, successor, children, services, offices, facts, schedule, holidays } = data
+  const openState = evaluateOpen(schedule, holidays)
   const merged = a.status === 'merged' || a.status === 'abolished'
 
   const ld = {
@@ -114,6 +125,8 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
           </p>
         </div>
       </div>
+
+      {openState && schedule && <OpenToday state={openState} schedule={schedule} />}
 
       {merged && (
         <div className="mt-5 rounded-xl border-l-[3px] border-l-[--color-crimson] bg-[--color-crimson-soft]

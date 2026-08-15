@@ -61,6 +61,7 @@ async function build(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE}/biz/${o.slug}`, lastModified: o.updatedAt,
       changeFrequency: 'weekly' as const, priority: 0.9,
     })),
+    { url: `${SITE}/date`, changeFrequency: 'daily' as const, priority: 0.85 },
     { url: `${SITE}/gov`, changeFrequency: 'weekly' as const, priority: 0.8 },
     { url: `${SITE}/how-to`, changeFrequency: 'weekly' as const, priority: 0.9 },
     ...agencies.map((a) => ({

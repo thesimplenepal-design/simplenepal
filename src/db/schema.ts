@@ -13,7 +13,7 @@
  */
 import {
   pgTable, serial, integer, text, varchar, boolean, timestamp,
-  doublePrecision, jsonb, index, uniqueIndex, pgEnum,
+  doublePrecision, jsonb, index, uniqueIndex, pgEnum, date,
 } from 'drizzle-orm/pg-core'
 
 // ─────────────────────────────────────────────────────── enums
@@ -503,4 +503,73 @@ export const serviceReport = pgTable('service_report', {
   index('report_service_idx').on(t.serviceId),
   index('report_office_idx').on(t.agencyOfficeId),
   index('report_status_idx').on(t.status),
+])
+
+// ─────────────────────────────────────── when offices are actually open
+//
+// The single most useful thing we can tell someone about a government office
+// is whether it is worth travelling there today. In Nepal that is not a static
+// fact: the Cabinet moved offices to a Saturday–Sunday weekend and 9–5 hours in
+// April 2026, tied to fuel supply and explicitly "subject to periodic review".
+//
+// So the weekly pattern is DATA, with a source and an effective date range —
+// not a constant in the code. When it reverts, we insert a row and the whole
+// site changes; nobody has to find a hardcoded array.
+
+export const scheduleScope = pgEnum('schedule_scope', ['national', 'province', 'district', 'local', 'office'])
+
+export const officeSchedule = pgTable('office_schedule', {
+  id: serial('id').primaryKey(),
+  scope: scheduleScope('scope').notNull().default('national'),
+  scopeId: integer('scope_id'),                       // null for national
+  labelEn: text('label_en').notNull(),
+  labelNe: text('label_ne'),
+  /** Days the office is open. 0 = Sunday … 6 = Saturday. */
+  openDays: integer('open_days').array().notNull(),
+  openTime: varchar('open_time', { length: 5 }).notNull(),   // 'HH:MM', Nepal time
+  closeTime: varchar('close_time', { length: 5 }).notNull(),
+  /** Fridays and winter months are often shorter. Null means same as above. */
+  shortDay: integer('short_day'),
+  shortCloseTime: varchar('short_close_time', { length: 5 }),
+  effectiveFrom: date('effective_from').notNull(),
+  effectiveTo: date('effective_to'),                  // null = still in force
+  sourceId: integer('source_id').references(() => source.id),
+  note: text('note'),
+  published: boolean('published').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('office_schedule_scope_idx').on(t.scope, t.scopeId, t.effectiveFrom),
+])
+
+/**
+ * Public holidays close offices, and Nepal has many — national, province-level,
+ * and community observances that close some offices and not others.
+ *
+ * `published` works exactly as it does for agencies: false means we have it from
+ * a source we haven't confirmed, so it may inform a warning but must never
+ * produce a confident "closed". An unconfirmed holiday is still worth showing —
+ * "possibly closed, check first" beats silence when the alternative is a wasted
+ * six-hour bus ride.
+ */
+export const holiday = pgTable('holiday', {
+  id: serial('id').primaryKey(),
+  nameEn: text('name_en').notNull(),
+  nameNe: text('name_ne'),
+  /** The Gregorian date. BS fields are denormalised for display and search. */
+  date: date('date').notNull(),
+  bsYear: integer('bs_year'),
+  bsMonth: integer('bs_month'),
+  bsDay: integer('bs_day'),
+  scope: scheduleScope('scope').notNull().default('national'),
+  scopeId: integer('scope_id'),
+  /** Some holidays apply to a community rather than a place — record honestly. */
+  appliesToNote: text('applies_to_note'),
+  isFullDay: boolean('is_full_day').notNull().default(true),
+  sourceId: integer('source_id').references(() => source.id),
+  confidence: integer('confidence').notNull().default(50),
+  published: boolean('published').notNull().default(false),
+  note: text('note'),
+}, (t) => [
+  index('holiday_date_idx').on(t.date),
+  uniqueIndex('holiday_unique_idx').on(t.date, t.nameEn, t.scope, t.scopeId),
 ])

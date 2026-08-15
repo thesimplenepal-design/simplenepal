@@ -12,7 +12,8 @@
     "seed:admin": "tsx src/db/seed-admin.ts",
     "seed:categories": "tsx src/db/seed-categories.ts",
     "check:db": "tsx src/db/check.ts",
-    "seed:gov": "tsx src/db/seed-gov.ts"
+    "seed:gov": "tsx src/db/seed-gov.ts",
+    "seed:hours": "tsx src/db/seed-hours.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",
