@@ -3,7 +3,7 @@ import { db } from '@/db'
 import { province, district, localLevel, organisation } from '@/db/schema'
 import { eq, sql } from 'drizzle-orm'
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+import { SITE_URL as SITE } from '@/lib/site'
 
 // Regenerate hourly. A build-time snapshot would freeze the sitemap at whatever
 // existed on the day of deploy — which for a site that grows by field visits is

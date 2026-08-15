@@ -5,6 +5,7 @@ import { db } from '@/db'
 import { province, district, localLevel, organisation, location, category, media } from '@/db/schema'
 import { eq, and, asc, desc, sql } from 'drizzle-orm'
 import { Container, Breadcrumbs, Stat, EmptyState, KIND_LABEL, ProvenanceChip } from '@/components/ui'
+import { abs } from '@/lib/site'
 
 export const revalidate = 3600
 
@@ -74,7 +75,7 @@ export default async function LocalLevelPage(
     name: l.nameEn,
     alternateName: l.nameNe,
     containedInPlace: { '@type': 'AdministrativeArea', name: `${d.nameEn} District` },
-    url: `${process.env.NEXT_PUBLIC_SITE_URL}/nepal/${p.slug}/${d.slug}/${l.slug}`,
+    url: abs(`/nepal/${p.slug}/${d.slug}/${l.slug}`),
   }
 
   return (

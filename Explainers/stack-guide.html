@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Stack, Explained — GitHub · Vercel · Neon · Storage</title>
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#faf9f7; --surface:#ffffff; --surface-2:#f3f1ed; --line:#e3e0d9;
+    --ink:#141310; --ink-2:#54514a; --ink-3:#8a867c;
+    --accent:#a32a3f; --accent-soft:#f8eaed;
+    --github:#24292f; --vercel:#111111; --neon:#0f7a52; --store:#2a78d6;
+    --ok:#0f7a52; --warn:#9a6100;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#131312; --surface:#1a1a19; --surface-2:#242423; --line:#34332f;
+    --ink:#f6f5f2; --ink-2:#bab7ae; --ink-3:#87847c;
+    --accent:#e8899a; --accent-soft:#2b1a1e;
+    --github:#e6edf3; --vercel:#f0f0f0; --neon:#4bbd8c; --store:#3987e5;
+    --ok:#4bbd8c; --warn:#d9a441;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-underline-offset:3px}
+
+  header.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 90%,transparent);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .topin{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px}
+  .brand{font-weight:700;letter-spacing:-.02em;font-size:15px}
+  .brand span{color:var(--accent)}
+  .tag{font-size:12px;color:var(--ink-3);border-left:1px solid var(--line);padding-left:14px}
+  button.tt{margin-left:auto;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);
+    border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:inherit}
+  button.tt:hover{border-color:var(--accent);color:var(--accent)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;display:grid;
+        grid-template-columns:220px minmax(0,1fr);gap:44px;align-items:start}
+  nav.side{position:sticky;top:64px;padding:26px 0 60px;max-height:calc(100vh - 64px);overflow-y:auto}
+  nav.side ol{list-style:none;margin:0;padding:0;counter-reset:s}
+  nav.side a{display:block;padding:5px 0 5px 22px;font-size:13.2px;color:var(--ink-2);
+    text-decoration:none;border-left:2px solid transparent;position:relative;line-height:1.4}
+  nav.side a:before{counter-increment:s;content:counter(s);position:absolute;left:6px;
+    font-size:10.5px;color:var(--ink-3);font-family:var(--mono);top:7px}
+  nav.side a:hover{color:var(--ink);border-left-color:var(--line)}
+  nav.side a.on{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+  main{padding:34px 0 140px;min-width:0}
+
+  h1{font-size:36px;line-height:1.15;letter-spacing:-.028em;margin:0 0 14px;font-weight:750}
+  h2{font-size:23px;letter-spacing:-.02em;margin:0 0 6px;font-weight:700}
+  h3{font-size:16.5px;margin:26px 0 8px;font-weight:680;letter-spacing:-.01em}
+  h4{font-size:13px;margin:18px 0 6px;font-weight:650;color:var(--ink-2);
+     text-transform:uppercase;letter-spacing:.07em}
+  p{margin:0 0 14px;color:var(--ink-2)}
+  p.lead{font-size:18px;color:var(--ink);line-height:1.55}
+  strong{color:var(--ink);font-weight:640}
+  section{margin:0 0 64px;scroll-margin-top:74px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 8px;font-weight:600}
+  .rule{height:1px;background:var(--line);margin:14px 0 22px}
+  ul,ol{margin:0 0 16px;padding-left:20px;color:var(--ink-2)}
+  li{margin:0 0 7px}
+  li::marker{color:var(--ink-3)}
+  code{font-family:var(--mono);font-size:.87em;background:var(--surface-2);
+    padding:1.5px 5px;border-radius:4px;color:var(--ink)}
+  pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:15px 17px;
+    overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.7;color:var(--ink-2);margin:0 0 18px}
+  pre code{background:none;padding:0;font-size:inherit}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:0 0 16px}
+  .card h3{margin-top:0}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:0 0 20px}
+
+  .svc{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+       padding:20px 22px;margin:0 0 16px;border-left:4px solid var(--c,var(--line))}
+  .svc .name{font-size:18px;font-weight:700;letter-spacing:-.02em;display:flex;
+             align-items:baseline;gap:10px;margin-bottom:3px}
+  .svc .name .what{font-size:12px;font-weight:500;color:var(--ink-3);text-transform:uppercase;letter-spacing:.07em}
+  .svc dl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13.8px;margin:14px 0 0}
+  .svc dt{color:var(--ink-3);font-family:var(--mono);font-size:11.5px;padding-top:3px;white-space:nowrap}
+  .svc dd{margin:0;color:var(--ink-2)}
+
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);
+    padding:14px 18px;border-radius:0 10px 10px 0;margin:0 0 20px}
+  .callout .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:5px}
+  .callout p:last-child{margin-bottom:0}
+  .callout.warn{border-left-color:var(--warn);background:color-mix(in srgb,var(--warn) 9%,var(--surface))}
+  .callout.warn .lbl{color:var(--warn)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.4px;margin:0 0 18px}
+  th{text-align:left;font-weight:640;color:var(--ink-3);font-size:11px;letter-spacing:.06em;
+     text-transform:uppercase;padding:0 10px 8px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);color:var(--ink-2);vertical-align:top}
+  tbody tr:hover td{background:var(--surface-2)}
+  .scroll{overflow-x:auto}
+
+  .flow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin:0 0 8px}
+  .flow svg{width:100%;height:auto;display:block}
+  .cap{font-size:12.5px;color:var(--ink-3);margin:0 0 22px;line-height:1.5}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+    padding:2.5px 8px;border-radius:20px;border:1px solid var(--line);color:var(--ink-3);
+    background:var(--surface-2);margin:0 5px 5px 0;text-transform:uppercase}
+  .pill.use{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,var(--line))}
+
+  footer{border-top:1px solid var(--line);padding:24px 0 0;font-size:12.6px;color:var(--ink-3)}
+  @media (max-width:900px){
+    .wrap{grid-template-columns:1fr;gap:0;padding:0 18px}
+    nav.side{position:static;max-height:none;padding:16px 0;border-bottom:1px solid var(--line)}
+    nav.side ol{display:flex;flex-wrap:wrap;gap:2px 4px}
+    nav.side a{border-left:none;padding:4px 10px;border:1px solid var(--line);border-radius:20px;font-size:12px}
+    nav.side a:before{display:none}
+    h1{font-size:28px}
+  }
+  @media print{nav.side,header.top{display:none}.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="topin">
+    <div class="brand">Your Stack, <span>Explained</span></div>
+    <div class="tag">GitHub · Vercel · Neon · Storage — written for Sanjog, Aug 2026</div>
+    <button class="tt" id="tt">Dark</button>
+  </div>
+</header>
+
+<div class="wrap">
+<nav class="side">
+  <ol id="toc">
+    <li><a href="#model">The mental model</a></li>
+    <li><a href="#github">GitHub</a></li>
+    <li><a href="#vercel">Vercel</a></li>
+    <li><a href="#neon">Neon</a></li>
+    <li><a href="#storage">Blob &amp; R2</a></li>
+    <li><a href="#supabase">Supabase</a></li>
+    <li><a href="#connect">How they connect</a></li>
+    <li><a href="#deploy">Deployment recipe</a></li>
+    <li><a href="#commands">Command cheat sheet</a></li>
+    <li><a href="#trouble">When it breaks</a></li>
+    <li><a href="#projects">Your three projects</a></li>
+    <li><a href="#learn">What to learn next</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ══════════════ MENTAL MODEL ══════════════ -->
+<section id="model">
+  <p class="eyebrow">Start here</p>
+  <h1>The mental model</h1>
+
+  <p class="lead">You said: one is frontend, one is backend, one is a server. That's a reasonable
+  guess and it's the single most useful thing to correct, because the real split isn't about
+  <em>frontend versus backend</em> at all — it's about <strong>code, running, data, and files.</strong></p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Service</th><th>Holds…</th><th>In plain terms</th></tr></thead>
+    <tbody>
+      <tr><td><strong>GitHub</strong></td><td>Your code, and every version of it</td>
+        <td>A filing cabinet with perfect memory. It never runs anything.</td></tr>
+      <tr><td><strong>Vercel</strong></td><td>Your code, <em>running</em></td>
+        <td>The building and the staff. Runs frontend <em>and</em> backend — both live here.</td></tr>
+      <tr><td><strong>Neon</strong></td><td>Your data</td>
+        <td>The ledger. Every province, business, review, subscription.</td></tr>
+      <tr><td><strong>Blob / R2</strong></td><td>Your files</td>
+        <td>The warehouse. Photos are too big and clumsy for the ledger.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>Two corrections worth internalising:</p>
+  <ul>
+    <li><strong>GitHub is not a server.</strong> Nobody visits your GitHub when they visit your site.
+      It stores code and its history. If GitHub vanished tomorrow, simplenepal.com would keep running
+      perfectly — you'd just have nowhere to push changes from.</li>
+    <li><strong>Vercel runs your backend too.</strong> Your `/api/capture` endpoint, the database
+      queries, the quality-score calculation — all of that is backend code, and it runs on Vercel.
+      There is no separate backend host in this stack. That's the point of Next.js.</li>
+  </ul>
+
+  <div class="callout">
+    <div class="lbl">The restaurant version</div>
+    <p><strong>GitHub</strong> is the recipe book and every draft of every recipe you've ever written.
+    <strong>Vercel</strong> is the kitchen, the waiters and the dining room — where orders actually get
+    cooked and served. <strong>Neon</strong> is the ledger of bookings, stock and prices.
+    <strong>Blob/R2</strong> is the cold room where the bulky things live. Customers only ever
+    interact with the restaurant. They never see the recipe book.</p>
+  </div>
+</section>
+
+<!-- ══════════════ GITHUB ══════════════ -->
+<section id="github">
+  <p class="eyebrow">Service 01</p>
+  <h2>GitHub</h2>
+  <div class="rule"></div>
+
+  <div class="svc" style="--c:var(--github)">
+    <div class="name">GitHub <span class="what">Code storage &amp; history</span></div>
+    <p style="margin:8px 0 0">Stores your code in the cloud and remembers every change ever made —
+    who changed what, when, and why. Built on <strong>git</strong>, which is the underlying tool;
+    GitHub is the website that hosts git repositories.</p>
+    <dl>
+      <dt>you use it to</dt><dd>Back up code, undo mistakes, and give Vercel something to deploy from</dd>
+      <dt>cost</dt><dd>Free — unlimited private repositories</dd>
+      <dt>if it broke</dt><dd>Your live site keeps running. You just couldn't ship updates.</dd>
+    </dl>
+  </div>
+
+  <h3>Words you'll keep hearing</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Word</th><th>Means</th></tr></thead>
+    <tbody>
+      <tr><td><code>repository</code> / repo</td><td>One project's folder, with its full history</td></tr>
+      <tr><td><code>commit</code></td><td>A saved snapshot with a message. Like "save game", but labelled</td></tr>
+      <tr><td><code>push</code></td><td>Upload your commits to GitHub</td></tr>
+      <tr><td><code>pull</code></td><td>Download changes from GitHub to your machine</td></tr>
+      <tr><td><code>branch</code></td><td>A parallel line of work. <code>main</code> is the real one</td></tr>
+      <tr><td><code>remote</code> / <code>origin</code></td><td>The GitHub address your local folder pushes to</td></tr>
+      <tr><td><code>.gitignore</code></td><td>List of files git must never upload — this is what keeps <code>.env</code> off GitHub</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <div class="lbl">The one rule</div>
+    <p><strong>Never commit a <code>.env</code> file.</strong> It holds your passwords. Ours is already
+    in <code>.gitignore</code>, so you're protected — but if you ever create a new project, check that
+    first. Secrets pushed to GitHub are considered permanently compromised, even after deletion,
+    because the history keeps them.</p>
+  </div>
+</section>
+
+<!-- ══════════════ VERCEL ══════════════ -->
+<section id="vercel">
+  <p class="eyebrow">Service 02</p>
+  <h2>Vercel</h2>
+  <div class="rule"></div>
+
+  <div class="svc" style="--c:var(--vercel)">
+    <div class="name">Vercel <span class="what">Build, host, serve</span></div>
+    <p style="margin:8px 0 0">Takes your code, <strong>builds</strong> it into an optimised website,
+    then <strong>runs and serves</strong> it worldwide. Made by the same company as Next.js, which is
+    why it fits so well.</p>
+    <dl>
+      <dt>you use it to</dt><dd>Turn code into a website people can visit</dd>
+      <dt>cost</dt><dd>Free (Hobby) for personal projects. ~$20/mo if it ever becomes commercial</dd>
+      <dt>if it broke</dt><dd>Site goes down. Code and data are safe.</dd>
+    </dl>
+  </div>
+
+  <h3>The three things Vercel actually does</h3>
+  <ul>
+    <li><strong>Builds.</strong> Runs <code>next build</code> — turning your source into optimised
+      HTML, CSS and JavaScript. If there's an error in your code, this is where it surfaces.</li>
+    <li><strong>Serves static content from the edge.</strong> Pages that don't change get cached on
+      servers all over the world, including near Nepal. Very fast, very cheap.</li>
+    <li><strong>Runs functions.</strong> Anything needing fresh data — your `/capture` tool, `/search` —
+      runs as a small server-side function, in <em>one</em> chosen region. Ours is
+      <code>sin1</code> (Singapore), sitting next to the database.</li>
+  </ul>
+
+  <div class="callout">
+    <div class="lbl">Why the region mattered so much</div>
+    <p>Vercel defaults new projects to <code>iad1</code> (Washington DC). With the database in
+    Singapore, every query would cross the Pacific — about 230ms each, several times per page.
+    Functions and database must sit in the same region. That's what <code>vercel.json</code> pins,
+    and it's the highest-value 3 lines of config in the whole project.</p>
+  </div>
+</section>
+
+<!-- ══════════════ NEON ══════════════ -->
+<section id="neon">
+  <p class="eyebrow">Service 03</p>
+  <h2>Neon</h2>
+  <div class="rule"></div>
+
+  <div class="svc" style="--c:var(--neon)">
+    <div class="name">Neon <span class="what">The database</span></div>
+    <p style="margin:8px 0 0">A hosted <strong>PostgreSQL</strong> database. Postgres is the
+    industry-standard open-source database; Neon runs it for you so you never manage a server.
+    Its trick is <em>scale-to-zero</em>: when nobody's using it, it sleeps and costs nothing.</p>
+    <dl>
+      <dt>you use it to</dt><dd>Store every province, district, business, photo record, lead event</dd>
+      <dt>cost</dt><dd>Free tier is generous — you're nowhere near it</dd>
+      <dt>if it broke</dt><dd>Site loads but shows no data. This is the one to back up.</dd>
+    </dl>
+  </div>
+
+  <h3>Things that will confuse you later</h3>
+  <ul>
+    <li><strong>Pooled vs direct connection string.</strong> The pooled one has <code>-pooler</code>
+      in the hostname. Use it — serverless functions open and close connections constantly, and the
+      pooler handles that. The direct one is for migrations and admin tools.</li>
+    <li><strong>Scale-to-zero causes a cold start.</strong> After 5 minutes idle, the first query
+      takes a couple of seconds while it wakes. Normal, not a bug.</li>
+    <li><strong>The region is permanent.</strong> You cannot move a Neon project between regions —
+      you create a new one and migrate. We learned this the hard way with Frankfurt.</li>
+    <li><strong>Branches.</strong> Neon can branch a database like git branches code — a full copy
+      for testing, instantly. You don't need it yet, but it's genuinely excellent when you do.</li>
+  </ul>
+</section>
+
+<!-- ══════════════ STORAGE ══════════════ -->
+<section id="storage">
+  <p class="eyebrow">Service 04</p>
+  <h2>Vercel Blob and Cloudflare R2</h2>
+  <div class="rule"></div>
+
+  <p>Both do the same job: <strong>store files</strong> — photos, PDFs, videos. This category is called
+  <em>object storage</em>. You need it because databases are bad at files (expensive, slow) and because
+  <strong>Vercel's own filesystem is temporary</strong> — anything your code writes there disappears on
+  the next deploy.</p>
+
+  <div class="grid2">
+    <div class="svc" style="--c:var(--store);margin:0">
+      <div class="name">Vercel Blob <span class="what">Simple</span></div>
+      <p style="margin:8px 0 0">Built into Vercel. One click to create, credentials injected
+      automatically, no separate account.</p>
+      <dl>
+        <dt>good for</dt><dd>Getting started. What we're using.</dd>
+        <dt>cost</dt><dd>Free tier, then charges for storage <em>and</em> bandwidth</dd>
+        <dt>weakness</dt><dd>Gets expensive once lots of people view lots of photos</dd>
+      </dl>
+    </div>
+    <div class="svc" style="--c:var(--store);margin:0">
+      <div class="name">Cloudflare R2 <span class="what">Cheap at scale</span></div>
+      <p style="margin:8px 0 0">Cloudflare's object storage. Same idea, but famously
+      <strong>zero egress fees</strong> — you're not charged when people download your files.</p>
+      <dl>
+        <dt>good for</dt><dd>Later, when photos number in the thousands</dd>
+        <dt>cost</dt><dd>10 GB free, then ~$0.015/GB/month, no bandwidth charge</dd>
+        <dt>weakness</dt><dd>Separate account, slightly more setup</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="lbl">Why we chose Blob now and R2 later</div>
+    <p>Your binding constraint today is <em>field time</em>, not storage cost. Blob needed zero new
+    accounts, so it won. At around 500 verified places with photos, R2 starts saving real money —
+    and swapping is one function in <code>src/lib/storage.ts</code>, because everything else in the
+    codebase only knows about the returned URL. That's what "don't build the abstraction first"
+    bought us.</p>
+  </div>
+</section>
+
+<!-- ══════════════ SUPABASE ══════════════ -->
+<section id="supabase">
+  <p class="eyebrow">Service 05</p>
+  <h2>Supabase — and why we didn't use it</h2>
+  <div class="rule"></div>
+
+  <p><strong>Supabase is a bundle.</strong> It gives you Postgres <em>plus</em> user login,
+  <em>plus</em> file storage, <em>plus</em> auto-generated APIs, <em>plus</em> realtime updates — in
+  one product. It's often described as "the open-source Firebase".</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Need</th><th>Our stack</th><th>Supabase equivalent</th></tr></thead>
+    <tbody>
+      <tr><td>Database</td><td>Neon</td><td>Supabase Postgres</td></tr>
+      <tr><td>File storage</td><td>Vercel Blob → R2</td><td>Supabase Storage</td></tr>
+      <tr><td>User login</td><td>Not built yet (phone OTP later)</td><td>Supabase Auth — included</td></tr>
+      <tr><td>Hosting</td><td>Vercel</td><td>Still Vercel — Supabase doesn't host sites</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Honest comparison</h3>
+  <ul>
+    <li><strong>Supabase would have been a defensible choice.</strong> Fewer services, and Auth
+      included is genuinely valuable for when businesses claim their pages.</li>
+    <li><strong>Neon is better at the database part.</strong> Faster cold starts, better branching,
+      and it does one thing rather than five.</li>
+    <li><strong>Bundles cost you at the edges.</strong> Supabase Auth is opinionated, and phone-OTP
+      for Nepali numbers via a local SMS gateway is exactly the kind of thing you end up fighting.</li>
+    <li><strong>It isn't a locked door.</strong> Both are Postgres. Moving is a database dump and
+      a connection-string change — a day's work, not a rewrite.</li>
+  </ul>
+
+  <p>If you start a project needing user accounts on day one, Supabase is the faster start.
+  For SimpleNepal — a public data site where login only matters much later — Neon was right.</p>
+</section>
+
+<!-- ══════════════ HOW THEY CONNECT ══════════════ -->
+<section id="connect">
+  <p class="eyebrow">The important bit</p>
+  <h2>How they connect</h2>
+  <div class="rule"></div>
+
+  <h3>What happens when someone visits your site</h3>
+  <div class="flow">
+    <svg viewBox="0 0 880 190" role="img" aria-label="Request flow from visitor through Vercel edge and function to Neon database">
+      <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L7,3 z" fill="currentColor"/></marker></defs>
+      <g font-family="var(--mono)" font-size="11.5" fill="currentColor" color="var(--ink-3)">
+        <rect x="8" y="60" width="120" height="52" rx="9" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="68" y="82" text-anchor="middle" fill="var(--ink)" font-size="12.5">Visitor</text>
+        <text x="68" y="99" text-anchor="middle" font-size="10.5">Kathmandu</text>
+
+        <line x1="132" y1="86" x2="188" y2="86" stroke="var(--line)" stroke-width="1.5" marker-end="url(#a)" color="var(--ink-3)"/>
+
+        <rect x="192" y="46" width="150" height="80" rx="9" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="267" y="72" text-anchor="middle" fill="var(--ink)" font-size="12.5">Vercel edge</text>
+        <text x="267" y="90" text-anchor="middle" font-size="10.5">cached pages</text>
+        <text x="267" y="106" text-anchor="middle" font-size="10.5" fill="var(--ok)">most visits stop here</text>
+
+        <line x1="346" y1="86" x2="402" y2="86" stroke="var(--line)" stroke-width="1.5" marker-end="url(#a)" color="var(--ink-3)"/>
+
+        <rect x="406" y="46" width="160" height="80" rx="9" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="486" y="72" text-anchor="middle" fill="var(--ink)" font-size="12.5">Vercel function</text>
+        <text x="486" y="90" text-anchor="middle" font-size="10.5">sin1 · Singapore</text>
+        <text x="486" y="106" text-anchor="middle" font-size="10.5">/capture · /search</text>
+
+        <line x1="570" y1="86" x2="626" y2="86" stroke="var(--line)" stroke-width="1.5" marker-end="url(#a)" color="var(--ink-3)"/>
+
+        <rect x="630" y="46" width="150" height="80" rx="9" fill="var(--surface-2)" stroke="var(--line)"/>
+        <text x="705" y="72" text-anchor="middle" fill="var(--neon)" font-size="12.5">Neon</text>
+        <text x="705" y="90" text-anchor="middle" font-size="10.5">ap-southeast-1</text>
+        <text x="705" y="106" text-anchor="middle" font-size="10.5" fill="var(--ok)">~1ms away</text>
+
+        <text x="440" y="163" text-anchor="middle" font-size="10.5">GitHub is not in this picture — it is never involved when someone visits</text>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">Most page views never reach the database at all — they're served from a cached copy
+  near the visitor. Only the live bits (search, capture, saving a place) go the full distance, and
+  that last hop is short because both ends sit in Singapore.</p>
+
+  <h3>What happens when you change something</h3>
+  <pre><code>You edit code on your Mac
+        │
+        │  git push
+        ▼
+   GitHub  ──────────────►  Vercel notices, builds, deploys
+   (stores it)                        │
+                                      ▼
+                              simplenepal.com updated  (~2 min)</code></pre>
+  <p>Right now that middle arrow is <strong>manual</strong> — you answered "no" to connecting the Git
+  repository, so you run <code>vercel --prod</code> yourself. Turning it on is one click:
+  Vercel → project → Settings → Git → Connect Git Repository.</p>
+
+  <h3>What actually glues them together</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Connection</th><th>The glue</th><th>Where you set it</th></tr></thead>
+    <tbody>
+      <tr><td>Your Mac → GitHub</td><td>A personal access token in your Keychain</td><td>Set once; done</td></tr>
+      <tr><td>GitHub → Vercel</td><td>The Vercel GitHub app</td><td>Vercel → Settings → Git</td></tr>
+      <tr><td>Vercel → Neon</td><td><code>DATABASE_URL</code> environment variable</td><td>Vercel → Settings → Environment Variables</td></tr>
+      <tr><td>Vercel → Blob</td><td><code>BLOB_READ_WRITE_TOKEN</code>, injected automatically</td><td>Vercel → Storage</td></tr>
+      <tr><td>Your Mac → Neon</td><td>The same <code>DATABASE_URL</code>, in your local <code>.env</code></td><td><code>.env</code> (never committed)</td></tr>
+      <tr><td>Domain → Vercel</td><td>DNS records at your registrar</td><td>Squarespace → DNS</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <div class="lbl">The single idea worth remembering</div>
+    <p>Almost every "it works locally but not in production" problem is <strong>an environment
+    variable that exists in <code>.env</code> but not in Vercel</strong>, or vice versa. They are two
+    separate lists that you must keep in sync by hand. When something breaks after deploying,
+    check that first — it's right about 80% of the time.</p>
+  </div>
+</section>
+
+<!-- ══════════════ DEPLOYMENT ══════════════ -->
+<section id="deploy">
+  <p class="eyebrow">The recipe</p>
+  <h2>Deploying a new project, start to finish</h2>
+  <div class="rule"></div>
+  <p>This is the order that avoids the traps we hit. Follow it top to bottom.</p>
+
+  <ol>
+    <li><strong>Decide which email owns the project</strong> — before creating anything. Use the same
+      email for GitHub, Vercel, Neon and the domain. Mixing them is what cost us an afternoon.</li>
+    <li><strong>Create the database first</strong>, and pick the region deliberately. Singapore for
+      anything Nepal-facing. <em>Regions cannot be changed later.</em></li>
+    <li><strong>Create an empty GitHub repo.</strong> No README, no .gitignore — an initial commit on
+      their side conflicts with your local history.</li>
+    <li><strong>Push your code.</strong> Confirm the branch is <code>main</code>:
+      <code>git branch -M main</code> before the first push.</li>
+    <li><strong>Set up <code>.env</code> locally</strong> and get the app running on your machine
+      before you deploy. Never debug two environments at once.</li>
+    <li><strong>Run migrations and seeds</strong> against the real database from your machine.</li>
+    <li><strong>Import to Vercel</strong>, add environment variables <em>before</em> the first deploy.</li>
+    <li><strong>Check the function region</strong> matches the database region.</li>
+    <li><strong>Add storage</strong> if the app handles uploads, then redeploy.</li>
+    <li><strong>Point the domain</strong> last, once the <code>.vercel.app</code> URL works.</li>
+  </ol>
+
+  <div class="callout warn">
+    <div class="lbl">Traps, in the order they'll bite you</div>
+    <p><strong>1.</strong> Different email per service → you can't see your own repo.
+    <strong>2.</strong> Database region ≠ function region → site feels sluggish forever.
+    <strong>3.</strong> Branch named <code>master</code> but you push <code>main</code>.
+    <strong>4.</strong> Env var missing in Vercel → build succeeds, site 500s.
+    <strong>5.</strong> Trailing newline pasted into an env var → connection fails, value looks correct.
+    <strong>6.</strong> Uploads written to the local filesystem → they vanish at the next deploy.</p>
+  </div>
+</section>
+
+<!-- ══════════════ COMMANDS ══════════════ -->
+<section id="commands">
+  <p class="eyebrow">Reference</p>
+  <h2>Command cheat sheet</h2>
+  <div class="rule"></div>
+
+  <h4>Every working session</h4>
+  <pre><code>cd ~/Documents/GitHub/simplenepal   # go to the project
+npm run dev                        # start local site → localhost:3000
+                                   # Control+C to stop</code></pre>
+
+  <h4>Saving and shipping work</h4>
+  <pre><code>git status                         # what changed?
+git add -A                         # stage everything
+git commit -m "what I did"         # save a labelled snapshot
+git push                           # upload to GitHub
+npx vercel --prod                  # deploy live (until auto-deploy is on)</code></pre>
+
+  <h4>Database</h4>
+  <pre><code>npm run db:push                    # apply schema changes
+npm run seed:admin                 # reseed provinces/districts/local levels
+npx drizzle-kit studio             # browse your data in a web UI</code></pre>
+
+  <h4>Checking things</h4>
+  <pre><code>npx vercel whoami                  # which Vercel account am I?
+git remote -v                      # which GitHub repo does this push to?
+git branch --show-current          # which branch am I on?
+npx vercel env ls                  # what env vars does Vercel have?</code></pre>
+
+  <h4>Safely reading a secret from .env</h4>
+  <pre><code># copies to clipboard, shows nothing on screen
+grep '^DATABASE_URL=' .env | cut -d= -f2- | tr -d '\n' | pbcopy</code></pre>
+</section>
+
+<!-- ══════════════ TROUBLESHOOTING ══════════════ -->
+<section id="trouble">
+  <p class="eyebrow">Reference</p>
+  <h2>When it breaks</h2>
+  <div class="rule"></div>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Symptom</th><th>Almost always</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>Site 500s after deploying, worked locally</td><td>Missing env var in Vercel</td>
+        <td><code>npx vercel env ls</code> and compare with <code>.env</code></td></tr>
+      <tr><td>Database connection fails, string looks right</td><td>Trailing newline or space in the value</td>
+        <td>Re-add it using the <code>pbcopy</code> command above</td></tr>
+      <tr><td>Site feels slow everywhere</td><td>Function region ≠ database region</td>
+        <td>Settings → Functions → Function Regions</td></tr>
+      <tr><td>Uploaded photos disappear</td><td>Written to the local filesystem</td>
+        <td>Storage must be Blob or R2, never <code>public/</code></td></tr>
+      <tr><td><code>src refspec main does not match any</code></td><td>Your branch is <code>master</code></td>
+        <td><code>git branch -M main</code></td></tr>
+      <tr><td>Vercel can't see your repo</td><td>Linked to a different GitHub account</td>
+        <td>Vercel → Settings → Git → Adjust GitHub App Permissions</td></tr>
+      <tr><td>First query after a break is slow</td><td>Neon scale-to-zero waking up</td>
+        <td>Nothing — this is normal</td></tr>
+      <tr><td>Build fails on <code>vercel.json</code></td><td>An unrecognised property</td>
+        <td>Vercel's schema is strict — no comment keys</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ══════════════ PROJECTS ══════════════ -->
+<section id="projects">
+  <p class="eyebrow">Your setup</p>
+  <h2>Your three projects</h2>
+  <div class="rule"></div>
+
+  <p>You have three projects, each with its own accounts. <strong>This is the thing to keep accurate</strong> —
+  today's confusion came entirely from not having it written down. Fill in the blanks and keep this
+  updated whenever you create something.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Project</th><th>Domain</th><th>GitHub</th><th>Vercel team</th><th>Neon</th><th>Owner email</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>SimpleNepal</strong></td>
+        <td>simplenepal.com<br><span style="color:var(--ink-3)">Squarespace</span></td>
+        <td>thesimplenepal-design<br><span style="color:var(--ink-3)">/simplenepal</span></td>
+        <td>navkar-trading<br><span style="color:var(--warn)">⚠ mismatched</span></td>
+        <td>simplenepal<br><span style="color:var(--ink-3)">Singapore</span></td>
+        <td><em>confirm — see below</em></td>
+      </tr>
+      <tr>
+        <td><strong>Navkar Trading</strong></td>
+        <td>navkartrading.qa</td><td>navkartradingqa-dot</td><td>navkar-trading</td>
+        <td><em>fill in</em></td><td>navkartrading.qa@gmail.com</td>
+      </tr>
+      <tr>
+        <td><strong>MadheshNext</strong></td>
+        <td>madheshnext.org</td><td><em>fill in</em></td><td><em>fill in</em></td>
+        <td><em>fill in</em></td><td><em>fill in</em></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Find out what you actually have</h3>
+  <p>Run these and fill in the table. None of them reveal a password.</p>
+  <pre><code>npx vercel whoami          # the Vercel account email
+npx vercel teams ls        # all Vercel teams you belong to
+git remote -v              # which GitHub repo this folder pushes to</code></pre>
+
+  <div class="callout warn">
+    <div class="lbl">The mismatch worth fixing eventually</div>
+    <p>SimpleNepal's code is under GitHub <code>thesimplenepal-design</code>, but it's hosted under the
+    Vercel team <code>navkar-trading</code>. It works fine and nobody can see it. But when SimpleNepal
+    has revenue, you want its accounts clean and separable — you can't sell or hand over a company
+    whose infrastructure is tangled with another business. Both are renameable/transferable later;
+    just don't leave it for years.</p>
+    <p style="margin-top:8px"><strong>Rule going forward:</strong> one email per project, used for
+    every service in that project. Write it down before you create the first account.</p>
+  </div>
+</section>
+
+<!-- ══════════════ LEARN ══════════════ -->
+<section id="learn">
+  <p class="eyebrow">Going deeper</p>
+  <h2>What to learn next</h2>
+  <div class="rule"></div>
+
+  <p>In priority order for what you're actually doing. I'd skip anything not on this list for now.</p>
+
+  <div class="grid2">
+    <div class="card"><h3>1. Git, properly</h3>
+      <p>The highest-leverage thing. Understanding commit, push, branch and revert means you can
+      experiment fearlessly, because you can always go back.</p>
+      <p><strong>Search:</strong> "Git and GitHub for Beginners" — the freeCodeCamp and Web Dev
+      Simplified versions are both solid. Official: <a href="https://docs.github.com/get-started">docs.github.com/get-started</a></p>
+    </div>
+    <div class="card"><h3>2. What Next.js actually does</h3>
+      <p>Why some pages are cached and some run live, and what "server component" means. This
+      explains most of the choices in your codebase.</p>
+      <p><strong>Official:</strong> <a href="https://nextjs.org/learn">nextjs.org/learn</a> — genuinely
+      good, free, interactive.</p>
+    </div>
+    <div class="card"><h3>3. SQL basics</h3>
+      <p>Enough to answer your own questions about your own data. <code>SELECT</code>,
+      <code>WHERE</code>, <code>JOIN</code>, <code>COUNT</code>. A weekend, and it pays forever.</p>
+      <p><strong>Try:</strong> <code>npx drizzle-kit studio</code> to poke at your real data while
+      you learn. <a href="https://neon.com/postgresql/tutorial">neon.com/postgresql/tutorial</a></p>
+    </div>
+    <div class="card"><h3>4. DNS, just the basics</h3>
+      <p>What an A record and a CNAME are. Half an hour, and domain setup stops being mysterious
+      forever.</p>
+      <p><strong>Search:</strong> "DNS explained in 5 minutes". Anything by Fireship is good for
+      quick conceptual grounding.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="lbl">Honest advice about learning this</div>
+    <p>You don't need to learn all of it, and you especially don't need to learn it before doing
+    useful work. The fastest path is: keep building, and when something confuses you, learn <em>that</em>
+    thing properly. Today you learned more about git remotes and database regions than any tutorial
+    would have taught you, because you needed it. That's the right pattern — just write down what you
+    learn, which is what this document is for.</p>
+  </div>
+
+  <footer>
+    <p>Written for Sanjog, August 2026, alongside building SimpleNepal. Keep the project table in
+    §11 up to date — it's the part that will save you the most time.</p>
+  </footer>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var t=document.getElementById('tt'), r=document.documentElement;
+  function set(m){r.setAttribute('data-theme',m); t.textContent = m==='dark'?'Light':'Dark';}
+  set(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
+  t.addEventListener('click',function(){set(r.getAttribute('data-theme')==='dark'?'light':'dark');});
+
+  var links=[].slice.call(document.querySelectorAll('#toc a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){l.classList.remove('on');});
+        var i=secs.indexOf(e.target); if(i>-1) links[i].classList.add('on');
+      }
+    });
+  },{rootMargin:'-70px 0px -70% 0px'});
+  secs.forEach(function(s){ if(s) io.observe(s); });
+})();
+</script>
+</body>
+</html>
