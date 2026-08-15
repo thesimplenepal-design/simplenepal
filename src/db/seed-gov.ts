@@ -20,24 +20,37 @@ import {
   service, serviceStep, serviceDocument, serviceAgency,
   localLevel, district,
 } from './schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, and, sql } from 'drizzle-orm'
 import { slugify } from '../lib/np'
 
 const BY = 'Sanjog'
 
+/**
+ * Insert a source once. Re-running the seed must not pile up duplicate source
+ * rows — provenance loses its meaning if the same citation exists five times.
+ */
+type SourceKind = (typeof source.kind.enumValues)[number]
+
+async function upsertSource(v: { kind: SourceKind; label: string; url?: string }) {
+  const [existing] = await db.select().from(source).where(eq(source.label, v.label)).limit(1)
+  if (existing) return existing
+  const [row] = await db.insert(source).values(v).returning()
+  return row
+}
+
 async function main() {
   // ── sources ─────────────────────────────────────────────────────────
-  const [srcRestructure] = await db.insert(source).values({
+  const srcRestructure = await upsertSource({
     kind: 'web',
     label: 'Kathmandu Post, "Nepal cuts federal ministries to 18 in administrative overhaul", 14 May 2026 — press report of the cabinet decision, NOT the Gazette',
     url: 'https://kathmandupost.com/national/2026/05/14/nepal-cuts-federal-ministries-to-18-in-administrative-overhaul',
-  }).returning()
+  })
 
-  const [srcLocalLevels] = await db.insert(source).values({
+  const srcLocalLevels = await upsertSource({
     kind: 'official',
     label: 'Official federal restructuring dataset — 753 local governments (via local-states-nepal, MIT)',
     url: 'https://github.com/sagautam5/local-states-nepal',
-  }).returning()
+  })
 
   // ── federal ministries ──────────────────────────────────────────────
   // English names from the sourced press report. Nepali names are the standard
@@ -157,41 +170,94 @@ async function main() {
     rural_municipality: 'Rural Municipality Office',
   }
 
+  // Batched, not row by row. Seeding runs from Nepal against a database in
+  // Singapore; a per-row loop is ~3,000 sequential round trips, which takes
+  // minutes and dies if any one of them drops. Chunked inserts make it four
+  // round trips per 250 offices, and a re-run picks up exactly where it stopped
+  // because every insert ignores conflicts.
+  const now = new Date()
+  const CHUNK = 250
+  const chunk = <T,>(xs: T[]) =>
+    Array.from({ length: Math.ceil(xs.length / CHUNK) }, (_, i) => xs.slice(i * CHUNK, i * CHUNK + CHUNK))
+
   let localCount = 0
-  for (const l of locals) {
-    const nameEn = `${l.nameEn} ${KIND_EN[l.kind]}`
-    const [row] = await db.insert(agency).values({
-      slug: `${l.dSlug}-${l.slug}-office`,
-      nameEn,
-      nameNe: `${l.nameNe} कार्यालय`,
-      level: 'local',
-      kind: 'office',
-      districtId: l.districtId,
-      localLevelId: l.id,
-      website: l.website,
-      published: true,                       // official dataset — safe to publish
-      verifiedAt: new Date(),
-      verifiedBy: 'official dataset',
-    }).onConflictDoNothing().returning()
+  for (const batch of chunk(locals)) {
+    const inserted = await db.insert(agency).values(
+      batch.map((l) => ({
+        slug: `${l.dSlug}-${l.slug}-office`,
+        nameEn: `${l.nameEn} ${KIND_EN[l.kind]}`,
+        nameNe: `${l.nameNe} कार्यालय`,
+        level: 'local' as const,
+        kind: 'office' as const,
+        districtId: l.districtId,
+        localLevelId: l.id,
+        website: l.website,
+        published: true,                     // official dataset — safe to publish
+        verifiedAt: now,
+        verifiedBy: 'official dataset',
+      })),
+    ).onConflictDoNothing().returning({ id: agency.id, localLevelId: agency.localLevelId })
 
-    if (!row) continue
-    localCount++
+    if (inserted.length === 0) continue
+    localCount += inserted.length
 
-    const [off] = await db.insert(agencyOffice).values({
-      agencyId: row.id, localLevelId: l.id, districtId: l.districtId, isPrimary: true,
-    }).returning()
+    const byLocal = new Map(batch.map((l) => [l.id, l]))
 
-    // It serves its own local level. Ward-level detail comes later, by phone.
-    await db.insert(agencyJurisdiction).values({
-      agencyOfficeId: off.id, coversType: 'local_level', coversId: l.id,
-    })
+    const offices = await db.insert(agencyOffice).values(
+      inserted.map((row) => ({
+        agencyId: row.id,
+        localLevelId: row.localLevelId,
+        districtId: byLocal.get(row.localLevelId!)?.districtId,
+        isPrimary: true,
+      })),
+    ).returning({ id: agencyOffice.id, localLevelId: agencyOffice.localLevelId })
 
-    await db.insert(fact).values({
-      entityType: 'agency', entityId: row.id, field: 'name',
-      sourceId: srcLocalLevels.id, confidence: 95,
-      verifiedBy: 'official dataset', verifiedAt: new Date(),
-    }).onConflictDoNothing()
+    // Each office serves its own local level. Ward-level detail comes later, by phone.
+    await db.insert(agencyJurisdiction).values(
+      offices.map((o) => ({
+        agencyOfficeId: o.id, coversType: 'local_level', coversId: o.localLevelId!,
+      })),
+    )
+
+    await db.insert(fact).values(
+      inserted.map((row) => ({
+        entityType: 'agency' as const, entityId: row.id, field: 'name',
+        sourceId: srcLocalLevels.id, confidence: 95,
+        verifiedBy: 'official dataset', verifiedAt: now,
+      })),
+    ).onConflictDoNothing()
+
+    console.log(`  … ${localCount}/${locals.length} local offices`)
   }
+
+  // Repair pass. If an earlier run died between inserting an agency and giving
+  // it an office, the conflict guard above would skip that agency forever and
+  // it would silently never appear in the office finder. Catch those.
+  const orphans = await db
+    .select({ id: agency.id, localLevelId: agency.localLevelId, districtId: agency.districtId })
+    .from(agency)
+    .where(and(
+      eq(agency.level, 'local'),
+      sql`not exists (select 1 from ${agencyOffice} o where o.agency_id = ${agency.id})`,
+    ))
+
+  if (orphans.length > 0) {
+    for (const batch of chunk(orphans)) {
+      const offices = await db.insert(agencyOffice).values(
+        batch.map((o) => ({
+          agencyId: o.id, localLevelId: o.localLevelId, districtId: o.districtId, isPrimary: true,
+        })),
+      ).returning({ id: agencyOffice.id, localLevelId: agencyOffice.localLevelId })
+
+      await db.insert(agencyJurisdiction).values(
+        offices.map((o) => ({
+          agencyOfficeId: o.id, coversType: 'local_level', coversId: o.localLevelId!,
+        })),
+      )
+    }
+    console.log(`  ↻ repaired ${orphans.length} office(s) left behind by an interrupted run`)
+  }
+
   console.log(`✓ ${localCount} local government offices, each with jurisdiction over its own local level`)
 
   // ── one service, end to end: birth registration ─────────────────────
