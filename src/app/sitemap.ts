@@ -1,8 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { db } from '@/db'
-import { province, district, localLevel, organisation } from '@/db/schema'
+import { province, district, localLevel, organisation, agency, service } from '@/db/schema'
 import { eq, sql } from 'drizzle-orm'
-
 import { SITE_URL as SITE } from '@/lib/site'
 
 // Regenerate hourly. A build-time snapshot would freeze the sitemap at whatever
@@ -27,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 
 async function build(): Promise<MetadataRoute.Sitemap> {
-  const [provinces, districts, locals, orgs] = await Promise.all([
+  const [provinces, districts, locals, orgs, agencies, services] = await Promise.all([
     db.select({ slug: province.slug }).from(province),
     db.select({ p: province.slug, d: district.slug }).from(district)
       .innerJoin(province, eq(province.id, district.provinceId)),
@@ -41,6 +40,10 @@ async function build(): Promise<MetadataRoute.Sitemap> {
       .innerJoin(province, eq(province.id, district.provinceId)),
     db.select({ slug: organisation.slug, updatedAt: organisation.updatedAt })
       .from(organisation).where(eq(organisation.published, true)),
+    db.select({ slug: agency.slug, updatedAt: agency.updatedAt })
+      .from(agency).where(eq(agency.published, true)),
+    db.select({ slug: service.slug, updatedAt: service.updatedAt })
+      .from(service).where(eq(service.published, true)),
   ])
 
   return [
@@ -57,6 +60,16 @@ async function build(): Promise<MetadataRoute.Sitemap> {
     ...orgs.map((o) => ({
       url: `${SITE}/biz/${o.slug}`, lastModified: o.updatedAt,
       changeFrequency: 'weekly' as const, priority: 0.9,
+    })),
+    { url: `${SITE}/gov`, changeFrequency: 'weekly' as const, priority: 0.8 },
+    { url: `${SITE}/how-to`, changeFrequency: 'weekly' as const, priority: 0.9 },
+    ...agencies.map((a) => ({
+      url: `${SITE}/gov/${a.slug}`, lastModified: a.updatedAt,
+      changeFrequency: 'monthly' as const, priority: 0.6,
+    })),
+    ...services.map((s) => ({
+      url: `${SITE}/how-to/${s.slug}`, lastModified: s.updatedAt,
+      changeFrequency: 'weekly' as const, priority: 0.95,
     })),
   ]
 }

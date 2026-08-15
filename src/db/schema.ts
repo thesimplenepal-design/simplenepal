@@ -240,3 +240,267 @@ export const searchLog = pgTable('search_log', {
   localLevelId: integer('local_level_id'),
   at: timestamp('at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index('search_qkey_idx').on(t.qKey)])
+
+// ═══════════════════════════════════════════════════════════════════════
+// GOVERNANCE — agencies, their offices, and the services they deliver.
+//
+// Two hierarchies, joined many-to-many:
+//   • the agency tree   — who exists (Ministry → Department → Office)
+//   • the service       — what a citizen actually wants done
+// A land transfer touches Malpot AND Napi AND a ward office. Modelling only
+// the org chart builds a directory nobody searches; modelling only services
+// can't answer "which office serves me". The value is in the join.
+// ═══════════════════════════════════════════════════════════════════════
+
+export const agencyLevel = pgEnum('agency_level', [
+  'federal', 'province', 'district', 'local',
+])
+
+export const agencyKind = pgEnum('agency_kind', [
+  'ministry', 'department', 'authority', 'office', 'commission', 'ward_office',
+])
+
+/**
+ * Agencies are never deleted, only superseded. Nepal cut federal ministries
+ * from 21 to 18 in May 2026; most references online silently overwrote the old
+ * names and broke their links. Keeping the old record with a pointer to its
+ * successor means old URLs still work, a confused citizen gets an explanation,
+ * and we accumulate an institutional history nobody can retrofit.
+ */
+export const agencyStatus = pgEnum('agency_status', [
+  'active', 'merged', 'abolished', 'renamed',
+])
+
+export const agency = pgTable('agency', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 140 }).notNull().unique(),
+  nameEn: text('name_en').notNull(),
+  nameNe: text('name_ne'),
+  abbrEn: varchar('abbr_en', { length: 24 }),
+  level: agencyLevel('level').notNull(),
+  kind: agencyKind('kind').notNull(),
+  parentId: integer('parent_id'),
+
+  // Where it sits in the country. All nullable — a federal ministry sits nowhere.
+  provinceId: integer('province_id').references(() => province.id),
+  districtId: integer('district_id').references(() => district.id),
+  localLevelId: integer('local_level_id').references(() => localLevel.id),
+
+  website: text('website'),
+  phone: text('phone'),
+  email: text('email'),
+  descriptionEn: text('description_en'),
+  descriptionNe: text('description_ne'),
+
+  status: agencyStatus('status').notNull().default('active'),
+  succeededById: integer('succeeded_by_id'),
+  successionNote: text('succession_note'),
+  establishedOn: timestamp('established_on', { withTimezone: true }),
+  abolishedOn: timestamp('abolished_on', { withTimezone: true }),
+
+  qualityScore: integer('quality_score').notNull().default(0),
+  published: boolean('published').notNull().default(false),
+  verifiedAt: timestamp('verified_at', { withTimezone: true }),
+  verifiedBy: text('verified_by'),
+  sort: integer('sort').notNull().default(0),
+
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('agency_parent_idx').on(t.parentId),
+  index('agency_level_kind_idx').on(t.level, t.kind),
+  index('agency_published_idx').on(t.published),
+])
+
+/** A physical counter. One agency can have many (77 district offices, say). */
+export const agencyOffice = pgTable('agency_office', {
+  id: serial('id').primaryKey(),
+  agencyId: integer('agency_id').notNull()
+    .references(() => agency.id, { onDelete: 'cascade' }),
+  labelEn: text('label_en'),
+  labelNe: text('label_ne'),
+  localLevelId: integer('local_level_id').references(() => localLevel.id),
+  districtId: integer('district_id').references(() => district.id),
+  ward: integer('ward'),
+  addressEn: text('address_en'),
+  addressNe: text('address_ne'),
+  lat: doublePrecision('lat'),
+  lng: doublePrecision('lng'),
+  geohash5: varchar('geohash5', { length: 5 }),
+  phones: text('phones').array(),
+  email: text('email'),
+  hours: jsonb('hours'),
+  isPrimary: boolean('is_primary').notNull().default(true),
+  verifiedAt: timestamp('verified_at', { withTimezone: true }),
+  verifiedBy: text('verified_by'),
+}, (t) => [
+  index('agency_office_agency_idx').on(t.agencyId),
+  index('agency_office_local_idx').on(t.localLevelId),
+  index('agency_office_district_idx').on(t.districtId),
+])
+
+/**
+ * WHICH PLACES an office serves — deliberately separate from where it IS.
+ *
+ * A citizen does not want the nearest Land Revenue Office, they want the one
+ * with authority over their land, which is decided by ward, not distance.
+ * Sending someone to the wrong office costs them a day and their trust in us.
+ */
+export const agencyJurisdiction = pgTable('agency_jurisdiction', {
+  id: serial('id').primaryKey(),
+  agencyOfficeId: integer('agency_office_id').notNull()
+    .references(() => agencyOffice.id, { onDelete: 'cascade' }),
+  coversType: varchar('covers_type', { length: 16 }).notNull(), // 'district' | 'local_level' | 'ward'
+  coversId: integer('covers_id').notNull(),
+  ward: integer('ward'),
+  note: text('note'),
+}, (t) => [
+  index('jurisdiction_covers_idx').on(t.coversType, t.coversId),
+  index('jurisdiction_office_idx').on(t.agencyOfficeId),
+])
+
+// ──────────────────────────────────────────────────────── services
+
+export const serviceCategory = pgEnum('service_category', [
+  'identity',          // citizenship, passport, national ID
+  'civil_registration',// birth, death, marriage, migration
+  'land',              // ownership, transfer, maps, revenue
+  'vehicle',           // licence, registration, transfer
+  'business',          // PAN, VAT, company registration
+  'education', 'health', 'social_security', 'other',
+])
+
+export const serviceAgencyRole = pgEnum('service_agency_role', [
+  'primary',        // where the service is actually delivered
+  'recommendation', // e.g. ward office issues the सिफारिस first
+  'verification',
+  'payment',
+  'appeal',
+])
+
+export const service = pgTable('service', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 140 }).notNull().unique(),
+  nameEn: text('name_en').notNull(),
+  nameNe: text('name_ne'),
+  category: serviceCategory('category').notNull(),
+  summaryEn: text('summary_en'),
+  summaryNe: text('summary_ne'),
+  eligibilityEn: text('eligibility_en'),
+  eligibilityNe: text('eligibility_ne'),
+
+  /**
+   * A fee CANNOT be published without a source. This is a foreign key rather
+   * than a note precisely so the schema refuses to hold an untraceable number —
+   * getting a fee wrong costs a citizen money and costs us their trust.
+   */
+  feeAmount: integer('fee_amount'),
+  feeNote: text('fee_note'),
+  feeSourceId: integer('fee_source_id').references(() => source.id),
+
+  durationTypical: text('duration_typical'),
+  legalBasis: text('legal_basis'),
+  onlineUrl: text('online_url'),
+
+  qualityScore: integer('quality_score').notNull().default(0),
+  published: boolean('published').notNull().default(false),
+  verifiedAt: timestamp('verified_at', { withTimezone: true }),
+  verifiedBy: text('verified_by'),
+  sort: integer('sort').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('service_category_idx').on(t.category),
+  index('service_published_idx').on(t.published),
+])
+
+export const serviceStep = pgTable('service_step', {
+  id: serial('id').primaryKey(),
+  serviceId: integer('service_id').notNull()
+    .references(() => service.id, { onDelete: 'cascade' }),
+  position: integer('position').notNull(),
+  titleEn: text('title_en').notNull(),
+  titleNe: text('title_ne'),
+  detailEn: text('detail_en'),
+  detailNe: text('detail_ne'),
+  // Nullable on purpose — some steps are "go home and wait".
+  atAgencyId: integer('at_agency_id').references(() => agency.id),
+}, (t) => [index('service_step_service_idx').on(t.serviceId, t.position)])
+
+export const serviceDocument = pgTable('service_document', {
+  id: serial('id').primaryKey(),
+  serviceId: integer('service_id').notNull()
+    .references(() => service.id, { onDelete: 'cascade' }),
+  position: integer('position').notNull().default(0),
+  nameEn: text('name_en').notNull(),
+  nameNe: text('name_ne'),
+  note: text('note'),
+  required: boolean('required').notNull().default(true),
+  copies: integer('copies').notNull().default(1),
+}, (t) => [index('service_doc_service_idx').on(t.serviceId)])
+
+export const serviceAgency = pgTable('service_agency', {
+  id: serial('id').primaryKey(),
+  serviceId: integer('service_id').notNull()
+    .references(() => service.id, { onDelete: 'cascade' }),
+  agencyId: integer('agency_id').notNull()
+    .references(() => agency.id, { onDelete: 'cascade' }),
+  role: serviceAgencyRole('role').notNull().default('primary'),
+}, (t) => [
+  uniqueIndex('service_agency_uniq').on(t.serviceId, t.agencyId, t.role),
+])
+
+// ───────────────────────────────────── citizen service reports
+// Deliberately NOT "reviews". Star ratings on a government office produce a
+// number nobody can act on and everybody can argue with, and they invite people
+// to name individual officials. Structured questions produce statistics that
+// have never existed in Nepal — about a process, not a person.
+
+export const reportOutcome = pgEnum('report_outcome', ['done', 'not_done', 'returning'])
+export const waitBand = pgEnum('wait_band', ['under_30m', '30_60m', '1_2h', 'half_day', 'more'])
+export const reportStatus = pgEnum('report_status', ['pending', 'published', 'rejected'])
+
+export const citizen = pgTable('citizen', {
+  id: serial('id').primaryKey(),
+  // Hashed — after verification we have no reason to keep the number itself.
+  phoneHash: varchar('phone_hash', { length: 64 }).unique(),
+  displayName: text('display_name'),
+  verifiedAt: timestamp('verified_at', { withTimezone: true }),
+  reputation: integer('reputation').notNull().default(0),
+  blocked: boolean('blocked').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const serviceReport = pgTable('service_report', {
+  id: serial('id').primaryKey(),
+  serviceId: integer('service_id').notNull().references(() => service.id),
+  agencyOfficeId: integer('agency_office_id').references(() => agencyOffice.id),
+  citizenId: integer('citizen_id').references(() => citizen.id),
+
+  outcome: reportOutcome('outcome').notNull(),
+  visitCount: integer('visit_count'),
+  wait: waitBand('wait'),
+  documentsMatched: boolean('documents_matched'),
+  documentsNote: text('documents_note'),   // every "no" is a correction to our own page
+  treatmentRating: integer('treatment_rating'), // 1–5
+  suggestion: varchar('suggestion', { length: 200 }),
+
+  /**
+   * Collected but NOT published per-office. Aggregated informal-payment data has
+   * never existed in Nepal and would be genuinely important — but publishing it
+   * turns a map of the state into a corruption-reporting platform, with real
+   * personal exposure under the Electronic Transactions Act. Hold until there is
+   * written legal advice. See the governance plan, §11.
+   */
+  informalPayment: boolean('informal_payment'),
+
+  occurredOn: timestamp('occurred_on', { withTimezone: true }),
+  status: reportStatus('status').notNull().default('pending'),
+  moderatedBy: text('moderated_by'),
+  moderatedAt: timestamp('moderated_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('report_service_idx').on(t.serviceId),
+  index('report_office_idx').on(t.agencyOfficeId),
+  index('report_status_idx').on(t.status),
+])

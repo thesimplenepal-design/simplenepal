@@ -36,7 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               />
             </form>
             <nav className="ml-auto hidden sm:flex gap-4 text-[13.5px] text-[--color-ink-2]">
-              <Link href="/nepal" className="no-underline hover:text-[--color-crimson]">Places</Link>
+              <Link href="/how-to" className="no-underline hover:text-[--color-crimson]">How to</Link>
+              <Link href="/gov" className="no-underline hover:text-[--color-crimson]">Government</Link>
             </nav>
           </div>
         </header>
