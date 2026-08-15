@@ -37,6 +37,24 @@ function isObj(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null
 }
 
+/**
+ * Read the first key that exists, trying exact matches then case-insensitively.
+ *
+ * NRB's published documentation says the currency code is `ISO3`. The live API
+ * returns `iso3`. Rather than swap one hardcoded spelling for another and be
+ * broken again the day they change it back, accept either — and any of the
+ * other names an exchange-rate API might plausibly use.
+ */
+function pick(o: Record<string, unknown>, ...names: string[]): unknown {
+  for (const n of names) if (n in o) return o[n]
+  const lower = new Map(Object.keys(o).map((k) => [k.toLowerCase(), k]))
+  for (const n of names) {
+    const hit = lower.get(n.toLowerCase())
+    if (hit !== undefined) return o[hit]
+  }
+  return undefined
+}
+
 /** Accepts a number or a numeric string; rejects anything else, including NaN. */
 function money(v: unknown): string | null {
   if (typeof v === 'number') return Number.isFinite(v) ? v.toFixed(4) : null
@@ -68,27 +86,31 @@ export function parseNrb(json: unknown): NrbPage {
   const rows: FxRow[] = []
   for (const day of payload) {
     if (!isObj(day)) continue
-    const date = isoDate(day.date)
+    const date = isoDate(pick(day, 'date', 'published_on'))
     if (!date) continue
-    const rates = Array.isArray(day.rates) ? day.rates : []
+    const ratesVal = pick(day, 'rates', 'rate')
+    const rates = Array.isArray(ratesVal) ? ratesVal : []
 
     for (const r of rates) {
       if (!isObj(r)) continue
       const cur = isObj(r.currency) ? r.currency : null
       if (!cur) continue
 
-      const iso3 = typeof cur.ISO3 === 'string' ? cur.ISO3.trim().toUpperCase() : null
-      const name = typeof cur.name === 'string' ? cur.name.trim() : null
+      const rawIso = pick(cur, 'iso3', 'ISO3', 'code', 'currency_code')
+      const rawName = pick(cur, 'name', 'currency_name', 'title')
+      const iso3 = typeof rawIso === 'string' ? rawIso.trim().toUpperCase() : null
+      const name = typeof rawName === 'string' ? rawName.trim() : null
       if (!iso3 || !/^[A-Z]{3}$/.test(iso3) || !name) continue
 
       // NRB quotes JPY and KRW per 100 units. Defaulting to 1 would inflate a
       // yen rate a hundredfold, so a missing or nonsense unit is a skip.
-      const rawUnit = typeof cur.unit === 'number' ? cur.unit : Number(cur.unit)
+      const unitVal = pick(cur, 'unit', 'units')
+      const rawUnit = typeof unitVal === 'number' ? unitVal : Number(unitVal)
       const unit = Number.isFinite(rawUnit) && rawUnit > 0 ? Math.round(rawUnit) : null
       if (!unit) continue
 
-      const buy = money(r.buy)
-      const sell = money(r.sell)
+      const buy = money(pick(r, 'buy', 'buy_rate', 'buying'))
+      const sell = money(pick(r, 'sell', 'sell_rate', 'selling'))
       if (!buy || !sell) continue
 
       rows.push({ date, iso3, currencyName: name, unit, buy, sell })
