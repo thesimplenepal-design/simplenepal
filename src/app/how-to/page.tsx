@@ -24,6 +24,7 @@ const CATEGORY_LABEL: Record<string, { en: string; ne: string }> = {
   education: { en: 'Education', ne: 'शिक्षा' },
   health: { en: 'Health', ne: 'स्वास्थ्य' },
   social_security: { en: 'Social security', ne: 'सामाजिक सुरक्षा' },
+  visitor: { en: 'Visiting Nepal', ne: 'नेपाल भ्रमण' },
   other: { en: 'Other', ne: 'अन्य' },
 }
 

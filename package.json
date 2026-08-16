@@ -16,7 +16,8 @@
     "seed:hours": "tsx src/db/seed-hours.ts",
     "backfill:fx": "tsx src/db/backfill-fx.ts",
     "seed:rates": "tsx src/db/seed-rates.ts",
-    "debug:nrb": "tsx src/db/debug-nrb.ts"
+    "debug:nrb": "tsx src/db/debug-nrb.ts",
+    "seed:visitor": "tsx src/db/seed-visitor.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

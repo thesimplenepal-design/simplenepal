@@ -39,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/how-to" className="no-underline hover:text-[var(--color-crimson)]">How to</Link>
               <Link href="/gov" className="no-underline hover:text-[var(--color-crimson)]">Government</Link>
               <Link href="/rates" className="no-underline hover:text-[var(--color-crimson)]">Rates</Link>
+              <Link href="/holidays" className="no-underline hover:text-[var(--color-crimson)]">Holidays</Link>
               <Link href="/date" className="no-underline hover:text-[var(--color-crimson)]">Date</Link>
             </nav>
           </div>

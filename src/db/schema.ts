@@ -367,7 +367,9 @@ export const serviceCategory = pgEnum('service_category', [
   'land',              // ownership, transfer, maps, revenue
   'vehicle',           // licence, registration, transfer
   'business',          // PAN, VAT, company registration
-  'education', 'health', 'social_security', 'other',
+  'education', 'health', 'social_security',
+  'visitor',           // visa, permits, and anything a foreign visitor needs
+  'other',
 ])
 
 export const serviceAgencyRole = pgEnum('service_agency_role', [
@@ -425,7 +427,13 @@ export const serviceStep = pgTable('service_step', {
   detailNe: text('detail_ne'),
   // Nullable on purpose — some steps are "go home and wait".
   atAgencyId: integer('at_agency_id').references(() => agency.id),
-}, (t) => [index('service_step_service_idx').on(t.serviceId, t.position)])
+}, (t) => [
+  index('service_step_service_idx').on(t.serviceId, t.position),
+  // One step per position per service. Without this there is no conflict for
+  // `onConflictDoNothing` to detect, and a second seed run silently doubles
+  // every step on the page.
+  uniqueIndex('service_step_pos_idx').on(t.serviceId, t.position),
+])
 
 export const serviceDocument = pgTable('service_document', {
   id: serial('id').primaryKey(),
@@ -437,7 +445,10 @@ export const serviceDocument = pgTable('service_document', {
   note: text('note'),
   required: boolean('required').notNull().default(true),
   copies: integer('copies').notNull().default(1),
-}, (t) => [index('service_doc_service_idx').on(t.serviceId)])
+}, (t) => [
+  index('service_doc_service_idx').on(t.serviceId),
+  uniqueIndex('service_doc_pos_idx').on(t.serviceId, t.position),
+])
 
 export const serviceAgency = pgTable('service_agency', {
   id: serial('id').primaryKey(),
