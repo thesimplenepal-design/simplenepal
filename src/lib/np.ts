@@ -197,3 +197,125 @@ export function geohash(lat: number, lng: number, precision = 5): string {
   }
   return hash
 }
+
+// ─────────────────────────────────────── Latin → Devanagari
+//
+// For the address card: a visitor types where they are staying, and a driver
+// needs to be able to read it.
+//
+// Naive letter-by-letter transliteration is not good enough here, and the
+// failure is not just cosmetic — "Patan" transliterates to पतन, which is a real
+// Nepali word meaning downfall. Handing a driver a card that says "please take
+// me to Downfall" is the opposite of the confidence this is supposed to give.
+//
+// So: a dictionary of the places visitors actually name, checked and correct,
+// with a sound-based fallback for everything else — and the caller is told which
+// it got, so the page can be honest about the difference.
+
+const PLACE_NE: Record<string, string> = {
+  // Kathmandu
+  thamel: 'ठमेल', kathmandu: 'काठमाडौं', ktm: 'काठमाडौं', basantapur: 'बसन्तपुर',
+  durbar: 'दरबार', square: 'स्क्वायर', 'durbar square': 'दरबार स्क्वायर',
+  boudha: 'बौद्ध', bouddha: 'बौद्ध', boudhanath: 'बौद्धनाथ',
+  swayambhu: 'स्वयम्भू', swoyambhu: 'स्वयम्भू', pashupati: 'पशुपति',
+  pashupatinath: 'पशुपतिनाथ', chhetrapati: 'क्षेत्रपाती', jhamsikhel: 'झम्सिखेल',
+  jhochhen: 'झोछेँ', asan: 'असन', indrachowk: 'इन्द्रचोक', ratnapark: 'रत्नपार्क',
+  baneshwor: 'बानेश्वर', koteshwor: 'कोटेश्वर', balaju: 'बालाजु', gongabu: 'गोंगबु',
+  kalanki: 'कलंकी', chabahil: 'चाबहिल', maharajgunj: 'महाराजगञ्ज',
+  lazimpat: 'लाजिम्पाट', naxal: 'नक्साल', sanepa: 'सानेपा', kupondole: 'कुपण्डोल',
+  jawalakhel: 'जावलाखेल', pulchowk: 'पुल्चोक', ekantakuna: 'एकान्तकुना',
+  budhanilkantha: 'बुढानीलकण्ठ', kirtipur: 'कीर्तिपुर', tribhuvan: 'त्रिभुवन',
+  // Valley towns
+  patan: 'पाटन', lalitpur: 'ललितपुर', bhaktapur: 'भक्तपुर', madhyapur: 'मध्यपुर',
+  thimi: 'थिमी', nagarkot: 'नगरकोट', dhulikhel: 'धुलिखेल', banepa: 'बनेपा',
+  // Elsewhere
+  pokhara: 'पोखरा', lakeside: 'लेकसाइड', sarangkot: 'सारंगकोट', chitwan: 'चितवन',
+  sauraha: 'सौराहा', bharatpur: 'भरतपुर', lumbini: 'लुम्बिनी', janakpur: 'जनकपुर',
+  biratnagar: 'विराटनगर', birgunj: 'वीरगन्ज', dharan: 'धरान', butwal: 'बुटवल',
+  nepalgunj: 'नेपालगन्ज', dhangadhi: 'धनगढी', rajbiraj: 'राजविराज', jhapa: 'झापा',
+  bhairahawa: 'भैरहवा', namche: 'नाम्चे', lukla: 'लुक्ला', besisahar: 'बेसीशहर',
+  // Words that turn up in a hotel name
+  hotel: 'होटल', guest: 'गेस्ट', house: 'हाउस', 'guest house': 'गेस्ट हाउस',
+  guesthouse: 'गेस्टहाउस', lodge: 'लज', resort: 'रिसोर्ट', homestay: 'होमस्टे',
+  hostel: 'हस्टल', inn: 'इन', marg: 'मार्ग', tole: 'टोल', chowk: 'चोक',
+  road: 'रोड', street: 'स्ट्रिट', ward: 'वडा',
+}
+
+const CONSONANTS: [string, string][] = [
+  ['chh', 'छ'], ['shr', 'श्र'], ['gy', 'ज्ञ'],
+  ['kh', 'ख'], ['gh', 'घ'], ['ch', 'च'], ['jh', 'झ'], ['th', 'थ'], ['dh', 'ध'],
+  ['ph', 'फ'], ['bh', 'भ'], ['sh', 'श'], ['ng', 'ङ'], ['ny', 'ञ'],
+  ['k', 'क'], ['g', 'ग'], ['j', 'ज'], ['t', 'त'], ['d', 'द'], ['n', 'न'],
+  ['p', 'प'], ['b', 'ब'], ['m', 'म'], ['y', 'य'], ['r', 'र'], ['l', 'ल'],
+  ['v', 'भ'], ['w', 'व'], ['s', 'स'], ['h', 'ह'], ['f', 'फ'], ['z', 'ज'],
+  ['c', 'क'], ['q', 'क'], ['x', 'क्स'],
+]
+
+// [latin, independent vowel, matra]
+const VOWELS: [string, string, string][] = [
+  ['aa', 'आ', 'ा'], ['ai', 'ऐ', 'ै'], ['au', 'औ', 'ौ'], ['ou', 'औ', 'ौ'],
+  ['ee', 'ई', 'ी'], ['ii', 'ई', 'ी'], ['oo', 'ऊ', 'ू'], ['uu', 'ऊ', 'ू'],
+  ['a', 'अ', ''], ['i', 'इ', 'ि'], ['u', 'उ', 'ु'], ['e', 'ए', 'े'], ['o', 'ओ', 'ो'],
+]
+
+function wordToDevanagari(word: string): string {
+  const w = word.toLowerCase()
+  let out = ''
+  let i = 0
+
+  while (i < w.length) {
+    const rest = w.slice(i)
+
+    const cons = CONSONANTS.find(([lat]) => rest.startsWith(lat))
+    if (cons) {
+      i += cons[0].length
+      const after = w.slice(i)
+      const vow = VOWELS.find(([lat]) => after.startsWith(lat))
+      if (vow) {
+        i += vow[0].length
+        // A written final 'a' is आकार, not the inherent schwa Nepali drops:
+        // "Pokhara" is पोखरा, not पोखर.
+        const isFinalA = vow[0] === 'a' && i >= w.length
+        out += cons[1] + (isFinalA ? 'ा' : vow[2])
+      } else {
+        // Consonant with no vowel: halanta mid-word, bare at the end (Nepali
+        // deletes the final schwa anyway, so ठमेल not ठमेल्).
+        out += cons[1] + (i >= w.length ? '' : '्')
+      }
+      continue
+    }
+
+    const vow = VOWELS.find(([lat]) => rest.startsWith(lat))
+    if (vow) { i += vow[0].length; out += vow[1]; continue }
+
+    out += rest[0] === ' ' ? ' ' : rest[0]
+    i++
+  }
+  return out
+}
+
+export type DevanagariResult = { text: string; exact: boolean }
+
+/**
+ * Latin → Devanagari for an address.
+ * `exact` is true only when every word came from the checked dictionary.
+ */
+export function toDevanagari(input: string): DevanagariResult {
+  const raw = (input ?? '').trim()
+  if (!raw) return { text: '', exact: true }
+
+  const lower = raw.toLowerCase()
+  if (PLACE_NE[lower]) return { text: PLACE_NE[lower], exact: true }
+
+  let allKnown = true
+  const parts = raw.split(/([,\s]+)/).map((tok) => {
+    if (/^[,\s]+$/.test(tok)) return tok
+    const key = tok.toLowerCase().replace(/[^a-z]/g, '')
+    if (PLACE_NE[key]) return PLACE_NE[key]
+    if (/^\d+$/.test(tok)) return tok.replace(/[0-9]/g, (d) => '०१२३४५६७८९'[Number(d)])
+    allKnown = false
+    return wordToDevanagari(tok)
+  })
+
+  return { text: parts.join('').replace(/\s+/g, ' ').trim(), exact: allKnown }
+}

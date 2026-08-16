@@ -645,3 +645,57 @@ export const metalRate = pgTable('metal_rate', {
   uniqueIndex('metal_rate_date_metal_idx').on(t.date, t.metal),
   index('metal_rate_metal_date_idx').on(t.metal, t.date),
 ])
+
+// ─────────────────────────────────────── what things should cost
+//
+// The single most useful thing you can tell an arriving visitor, and the single
+// most common way they are cheated.
+//
+// It is also protection for the honest business. The driver charging a fair
+// NPR 1,000 is currently tarred by the one charging 3,000, because the visitor
+// has no way to tell them apart and assumes the worst of both. A published range
+// is the only thing that lets an honest price prove itself.
+//
+// Which is exactly why this data may never be monetised by commission from the
+// businesses it prices. See /promise.
+
+export const priceContext = pgEnum('price_context', [
+  'airport',        // captive demand, legitimately dearer
+  'tourist_area',   // Thamel, Lakeside — higher rent and hours are a real cost
+  'local_area',     // what a resident pays
+  'online',         // published tariff or app fare
+])
+
+export const priceItem = pgTable('price_item', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 140 }).notNull().unique(),
+  nameEn: text('name_en').notNull(),
+  nameNe: text('name_ne'),
+  /** 'per ride', 'per litre', 'per plate' — a number without a unit is useless. */
+  unit: text('unit').notNull(),
+  category: varchar('category', { length: 40 }).notNull().default('other'),
+  noteEn: text('note_en'),
+  sort: integer('sort').notNull().default(0),
+}, (t) => [index('price_item_cat_idx').on(t.category, t.sort)])
+
+/**
+ * One observation. Never edited into an average — the range IS the answer, and
+ * the spread between a local price and a tourist price is information, not noise
+ * to be smoothed away.
+ */
+export const priceObservation = pgTable('price_observation', {
+  id: serial('id').primaryKey(),
+  itemId: integer('item_id').notNull()
+    .references(() => priceItem.id, { onDelete: 'cascade' }),
+  amount: integer('amount').notNull(),                  // NPR, whole rupees
+  context: priceContext('context').notNull().default('local_area'),
+  localLevelId: integer('local_level_id').references(() => localLevel.id),
+  placeNote: text('place_note'),                        // 'Thamel', 'TIA arrivals'
+  observedAt: date('observed_at').notNull(),
+  observedBy: text('observed_by').notNull(),
+  note: text('note'),
+  sourceId: integer('source_id').references(() => source.id),
+}, (t) => [
+  index('price_obs_item_idx').on(t.itemId, t.observedAt),
+  index('price_obs_context_idx').on(t.itemId, t.context),
+])

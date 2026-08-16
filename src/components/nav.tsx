@@ -14,6 +14,8 @@ import Link from 'next/link'
  */
 
 export const NAV = [
+  { href: '/arrive', label: 'Arrive', hint: 'Your first 48 hours in Nepal' },
+  { href: '/prices', label: 'Prices', hint: 'What things actually cost' },
   { href: '/how-to', label: 'How to', hint: 'Government services, step by step' },
   { href: '/gov', label: 'Government', hint: 'Ministries, departments and offices' },
   { href: '/rates', label: 'Rates', hint: 'Official exchange rates' },
