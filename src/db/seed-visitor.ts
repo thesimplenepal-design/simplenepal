@@ -33,8 +33,22 @@ const BY = 'Sanjog'
  * exact shape has now bitten this project twice. Always resolve the row.
  */
 async function upsertService(values: typeof service.$inferInsert) {
-  const [inserted] = await db.insert(service).values(values).onConflictDoNothing().returning()
-  if (inserted) return inserted
+  // Update on conflict, not ignore. Correcting copy or a fee and re-running has
+  // to actually change the page — a seed that silently no-ops on its second run
+  // is a seed you cannot fix anything with.
+  const [row] = await db.insert(service).values(values).onConflictDoUpdate({
+    target: service.slug,
+    set: {
+      nameEn: sql`excluded.name_en`, nameNe: sql`excluded.name_ne`,
+      summaryEn: sql`excluded.summary_en`, eligibilityEn: sql`excluded.eligibility_en`,
+      feeAmount: sql`excluded.fee_amount`, feeCurrency: sql`excluded.fee_currency`,
+      feeIsFrom: sql`excluded.fee_is_from`, feeNote: sql`excluded.fee_note`,
+      feeSourceId: sql`excluded.fee_source_id`,
+      durationTypical: sql`excluded.duration_typical`, onlineUrl: sql`excluded.online_url`,
+      updatedAt: new Date(),
+    },
+  }).returning()
+  if (row) return row
   const [existing] = await db.select().from(service).where(eq(service.slug, values.slug)).limit(1)
   return existing ?? null
 }
@@ -91,6 +105,8 @@ async function main() {
       'and cannot get one on arrival — check with a Nepali diplomatic mission if you are ' +
       'unsure, because being turned back at the airport is expensive.',
     feeAmount: 30,
+    feeCurrency: 'USD',
+    feeIsFrom: true,          // 30 buys 15 days; 90 days is 125
     feeNote:
       'USD 30 for 15 days, USD 50 for 30 days, USD 125 for 90 days — or the equivalent in ' +
       'convertible currency. All three include multiple entry. Free for: children under 10 ' +
@@ -161,6 +177,8 @@ async function main() {
       'office in Pokhara.',
     eligibilityEn: 'Anyone holding a valid Nepali tourist visa that has not yet expired.',
     feeAmount: 45,
+    feeCurrency: 'USD',
+    feeIsFrom: true,          // 45 covers the first 15 days, then USD 3/day
     feeNote:
       'USD 45 for the first 15 days, then USD 3 for each additional day. Extending after ' +
       'your visa has already expired attracts a late fee on top, so go before it runs out.',
@@ -225,6 +243,8 @@ async function main() {
       'trekkers in specific protected areas to be accompanied by a licensed guide and to carry ' +
       'a TIMS card issued through a trekking agency.',
     feeAmount: 2000,
+    feeCurrency: 'NPR',
+    feeIsFrom: true,          // TIMS alone; park entry is charged on top
     feeNote:
       'TIMS card: NPR 2,000 for most nationalities, NPR 1,000 for SAARC nationals, paid online. ' +
       'Park and conservation entry is separate — Annapurna, Manaslu and Gaurishankar are ' +

@@ -94,7 +94,11 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-7">
         <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3">
           <div className="text-[20px] font-semibold tracking-tight">
-            {s.feeAmount === 0 ? 'Free' : s.feeAmount ? `NPR ${s.feeAmount.toLocaleString()}` : '—'}
+            {s.feeAmount === 0
+              ? 'Free'
+              : s.feeAmount
+                ? `${s.feeIsFrom ? 'From ' : ''}${s.feeCurrency} ${s.feeAmount.toLocaleString()}`
+                : '—'}
           </div>
           <div className="text-[11px] uppercase tracking-wider text-[var(--color-ink-3)] mt-1">Fee</div>
         </div>

@@ -397,6 +397,14 @@ export const service = pgTable('service', {
    * getting a fee wrong costs a citizen money and costs us their trust.
    */
   feeAmount: integer('fee_amount'),
+  /**
+   * Never assume rupees. A visa costs USD 30; rendering that as "NPR 30" is off
+   * by more than a hundredfold, on the one page where being wrong meets someone
+   * at an airport counter with the wrong money in their hand.
+   */
+  feeCurrency: varchar('fee_currency', { length: 3 }).notNull().default('NPR'),
+  /** True when `feeAmount` is the cheapest of several options, not the price. */
+  feeIsFrom: boolean('fee_is_from').notNull().default(false),
   feeNote: text('fee_note'),
   feeSourceId: integer('fee_source_id').references(() => source.id),
 
