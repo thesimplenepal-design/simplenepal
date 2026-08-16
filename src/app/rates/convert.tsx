@@ -31,7 +31,7 @@ export function Convert({ rates }: { rates: Rate[] }) {
       <div className="inline-flex rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-2)] p-1 mb-5">
         {([['to_npr', 'To rupees'], ['from_npr', 'From rupees']] as const).map(([v, label]) => (
           <button key={v} type="button" onClick={() => setDir(v)} aria-pressed={dir === v}
-            className={`px-4 py-1.5 rounded-md text-[13.5px] font-medium transition-colors ${
+            className={`px-4 py-2.5 min-h-10 rounded-md text-[13.5px] font-medium transition-colors ${
               dir === v ? 'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-sm'
                         : 'text-[var(--color-ink-2)] border border-transparent'}`}>
             {label}

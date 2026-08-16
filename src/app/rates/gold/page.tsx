@@ -92,7 +92,7 @@ export default async function GoldPage({
       <div className="inline-flex rounded-lg border border-[var(--color-line)] bg-[var(--color-surface-2)] p-1 mt-9">
         {RANGES.map((r) => (
           <Link key={r.key} href={`/rates/gold?r=${r.key}`} scroll={false}
-            className={`px-4 py-1.5 rounded-md text-[13.5px] font-medium no-underline transition-colors ${
+            className={`px-4 py-2.5 min-h-10 flex items-center rounded-md text-[13.5px] font-medium no-underline transition-colors ${
               r.key === range.key
                 ? 'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-sm text-[var(--color-ink)]'
                 : 'text-[var(--color-ink-2)] border border-transparent'}`}>

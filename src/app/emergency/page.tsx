@@ -51,8 +51,9 @@ export default function EmergencyPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-8 max-w-3xl">
         {CORE.map((c) => (
           <a key={c.n} href={`tel:${c.n}`}
-             className="block no-underline rounded-xl border border-[var(--color-line)]
-                        bg-[var(--color-surface)] px-4 py-4 hover:border-[var(--color-crimson)]
+             className="flex flex-col justify-center no-underline rounded-xl min-h-24
+                        border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-4
+                        hover:border-[var(--color-crimson)] active:bg-[var(--color-surface-2)]
                         transition-colors">
             <div className="text-[30px] font-bold tracking-tight tabular-nums leading-none">{c.n}</div>
             <div className="text-[14px] font-medium mt-1.5">{c.label}</div>
@@ -81,12 +82,17 @@ export default function EmergencyPage() {
               <div className="text-[11.5px] uppercase tracking-wider text-[var(--color-ink-3)] mb-1.5">
                 {district}
               </div>
-              <ul className="space-y-1.5">
+              <ul className="-mx-2">
                 {list.map(([place, phone]) => (
-                  <li key={place} className="flex items-baseline justify-between gap-3">
-                    <span className="text-[14px]">{place}</span>
-                    <a href={`tel:+977${phone}`} className="text-[14px] tabular-nums underline shrink-0">
-                      {phone}
+                  <li key={place}>
+                    {/* The whole row is the link. Someone using this page is
+                        rattled, possibly in the dark, and should not have to hit
+                        eleven digits of text exactly. */}
+                    <a href={`tel:+977${phone}`}
+                       className="flex items-center justify-between gap-3 no-underline
+                                  min-h-12 px-2 rounded-lg active:bg-[var(--color-surface-2)]">
+                      <span className="text-[14.5px]">{place}</span>
+                      <span className="text-[14.5px] tabular-nums underline shrink-0">{phone}</span>
                     </a>
                   </li>
                 ))}
