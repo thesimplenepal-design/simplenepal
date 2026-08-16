@@ -10,6 +10,7 @@ import { eq, and, asc, sql } from 'drizzle-orm'
 import { Container, Breadcrumbs, Stat, EmptyState } from '@/components/ui'
 import { OpenToday } from '@/components/open-today'
 import { currentSchedule, upcomingHolidays } from '@/db/hours'
+import { holdersFor } from '@/db/directory'
 import { evaluateOpen } from '@/lib/hours'
 import { abs } from '@/lib/site'
 
@@ -58,6 +59,8 @@ async function load(slug: string) {
     .where(eq(agencyOffice.agencyId, a.id))
     .limit(50)
 
+  const holders = await holdersFor(a.id)
+
   const facts = await db
     .select({ field: fact.field, note: fact.note, confidence: fact.confidence,
               label: source.label, url: source.url })
@@ -71,7 +74,7 @@ async function load(slug: string) {
     ? await Promise.all([currentSchedule(), upcomingHolidays()])
     : [null, []]
 
-  return { a, parent, successor, children, services, offices, facts, schedule, holidays }
+  return { a, parent, successor, children, services, offices, facts, schedule, holidays, holders }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -91,7 +94,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function AgencyPage({ params }: { params: Promise<{ slug: string }> }) {
   const data = await load((await params).slug)
   if (!data) notFound()
-  const { a, parent, successor, children, services, offices, facts, schedule, holidays } = data
+  const { a, parent, successor, children, services, offices, facts, schedule, holidays, holders } = data
   const openState = evaluateOpen(schedule, holidays)
   const merged = a.status === 'merged' || a.status === 'abolished'
 
@@ -160,6 +163,47 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
           Official site:{' '}
           <a href={a.website} rel="nofollow noopener" className="underline">{a.website.replace(/^https?:\/\//, '')}</a>
         </p>
+      )}
+
+      {holders.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-[18px] font-semibold tracking-tight mb-1">Who to ask for</h2>
+          <p className="text-[13px] text-[var(--color-ink-3)] mb-3 max-w-2xl">
+            The office, and who currently holds it. People move — if this is out of date,{' '}
+            <a href={`mailto:fix@simplenepal.com?subject=Officeholder: ${encodeURIComponent(a.nameEn)}`}
+               className="underline">tell us</a>.
+          </p>
+          <ul className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]
+                         divide-y divide-[var(--color-line)]">
+            {holders.map((h, i) => (
+              <li key={i} className="px-4 py-3">
+                {/* Role first, person second. The office is the durable thing;
+                    the person is an attribute of it with dates. */}
+                <div className="text-[14.5px] font-medium">
+                  {h.roleEn}
+                  {h.roleNe && <span className="ne text-[13px] text-[var(--color-ink-3)] ml-2">{h.roleNe}</span>}
+                </div>
+                <div className="text-[13.5px] text-[var(--color-ink-2)] mt-0.5">
+                  {h.personName ?? <span className="text-[var(--color-ink-3)]">Post vacant, as far as we know</span>}
+                  {h.fromDate && <span className="text-[var(--color-ink-3)]"> · since {h.fromDate}</span>}
+                </div>
+                {h.contactPublic && (
+                  <div className="text-[13px] mt-1">
+                    <a href={`tel:${h.contactPublic.replace(/\s/g, '')}`} className="underline">
+                      {h.contactPublic}
+                    </a>
+                  </div>
+                )}
+                <div className="text-[11.5px] text-[var(--color-ink-3)] mt-1">
+                  {h.sourceUrl
+                    ? <a href={h.sourceUrl} rel="nofollow noopener" className="underline">{h.sourceLabel}</a>
+                    : h.sourceLabel ?? 'source not recorded'}
+                  {' · '}confidence {h.confidence}%
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {children.length > 0 && (

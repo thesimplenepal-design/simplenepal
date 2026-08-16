@@ -18,7 +18,9 @@
     "seed:rates": "tsx src/db/seed-rates.ts",
     "debug:nrb": "tsx src/db/debug-nrb.ts",
     "seed:visitor": "tsx src/db/seed-visitor.ts",
-    "seed:prices": "tsx src/db/seed-prices.ts"
+    "seed:prices": "tsx src/db/seed-prices.ts",
+    "seed:institutions": "tsx src/db/seed-institutions.ts",
+    "import:csv": "tsx src/db/import-csv.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

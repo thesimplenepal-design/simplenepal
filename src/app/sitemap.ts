@@ -64,6 +64,8 @@ async function build(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/arrive`, changeFrequency: 'monthly' as const, priority: 0.9 },
     { url: `${SITE}/prices`, changeFrequency: 'weekly' as const, priority: 0.9 },
     { url: `${SITE}/promise`, changeFrequency: 'yearly' as const, priority: 0.6 },
+    { url: `${SITE}/colleges`, changeFrequency: 'weekly' as const, priority: 0.85 },
+    { url: `${SITE}/hospitals`, changeFrequency: 'weekly' as const, priority: 0.85 },
     { url: `${SITE}/rates`, changeFrequency: 'daily' as const, priority: 0.9 },
     { url: `${SITE}/holidays`, changeFrequency: 'weekly' as const, priority: 0.85 },
     { url: `${SITE}/emergency`, changeFrequency: 'monthly' as const, priority: 0.8 },

@@ -18,6 +18,8 @@ export const NAV = [
   { href: '/prices', label: 'Prices', hint: 'What things actually cost' },
   { href: '/how-to', label: 'How to', hint: 'Government services, step by step' },
   { href: '/gov', label: 'Government', hint: 'Ministries, departments and offices' },
+  { href: '/colleges', label: 'Colleges', hint: 'Universities and who is affiliated to whom' },
+  { href: '/hospitals', label: 'Hospitals', hint: 'Health facilities and emergency cover' },
   { href: '/rates', label: 'Rates', hint: 'Official exchange rates' },
   { href: '/holidays', label: 'Holidays', hint: 'What closes, and when' },
   { href: '/date', label: 'Date', hint: 'Bikram Sambat converter' },

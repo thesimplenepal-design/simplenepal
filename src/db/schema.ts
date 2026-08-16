@@ -138,6 +138,20 @@ export const organisation = pgTable('organisation', {
   verifiedAt: timestamp('verified_at', { withTimezone: true }),
   verifiedBy: text('verified_by'),
 
+  /**
+   * Appearing in an official register is NOT the same as having been visited,
+   * and the site must never let the two wear the same badge. The footer promises
+   * that every record was checked by a person; importing a government list and
+   * displaying it like a field visit would make that sentence a lie.
+   *
+   * So a registry import fills these and leaves verifiedAt null. The quality
+   * gate then keeps it unpublished automatically — no photo, no coordinates, no
+   * verifier — which turns an import into a WORKLIST rather than content.
+   */
+  registryName: varchar('registry_name', { length: 40 }),   // 'UGC', 'NHFR', 'NRB'
+  registryId: varchar('registry_id', { length: 60 }),       // their own code
+  registryCheckedAt: timestamp('registry_checked_at', { withTimezone: true }),
+
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
@@ -698,4 +712,93 @@ export const priceObservation = pgTable('price_observation', {
 }, (t) => [
   index('price_obs_item_idx').on(t.itemId, t.observedAt),
   index('price_obs_context_idx').on(t.itemId, t.context),
+])
+
+// ────────────────────────────────── education: colleges and universities
+//
+// A university is an organisation, so it lives in `organisation` like everything
+// else. This table holds only what is specific to education — above all the
+// AFFILIATION, which is the fact students actually need and the one that
+// commercial college-listing sites are least motivated to state plainly.
+
+export const institutionKind = pgEnum('institution_kind', [
+  'university', 'deemed', 'campus', 'college', 'school',
+])
+
+export const institution = pgTable('institution', {
+  id: serial('id').primaryKey(),
+  organisationId: integer('organisation_id').notNull().unique()
+    .references(() => organisation.id, { onDelete: 'cascade' }),
+  kind: institutionKind('kind').notNull(),
+  /** The university this is affiliated to. Null for a university itself. */
+  affiliatedToId: integer('affiliated_to_id'),
+  /** 'constituent' | 'affiliated' | 'community' | 'private' */
+  affiliationType: varchar('affiliation_type', { length: 24 }),
+  establishedYear: integer('established_year'),
+  ugcCode: varchar('ugc_code', { length: 40 }),
+  programmes: text('programmes').array(),
+  sourceId: integer('source_id').references(() => source.id),
+}, (t) => [
+  index('institution_affil_idx').on(t.affiliatedToId),
+  index('institution_kind_idx').on(t.kind),
+])
+
+// ─────────────────────────────────────────────── health facilities
+//
+// The questions that matter in a bad moment: is it a hospital or a health post,
+// is it government or private, and does it take emergencies. Everything else is
+// detail.
+
+export const facilityKind = pgEnum('facility_kind', [
+  'hospital', 'primary_health_centre', 'health_post', 'clinic', 'teaching_hospital',
+])
+
+export const facilityOwnership = pgEnum('facility_ownership', [
+  'government', 'community', 'private', 'ngo', 'teaching',
+])
+
+export const healthFacility = pgTable('health_facility', {
+  id: serial('id').primaryKey(),
+  organisationId: integer('organisation_id').notNull().unique()
+    .references(() => organisation.id, { onDelete: 'cascade' }),
+  kind: facilityKind('kind').notNull(),
+  ownership: facilityOwnership('ownership').notNull(),
+  beds: integer('beds'),
+  /** Null means we do not know — which is different from false, and matters here. */
+  hasEmergency: boolean('has_emergency'),
+  hasAmbulance: boolean('has_ambulance'),
+  sourceId: integer('source_id').references(() => source.id),
+}, (t) => [index('facility_kind_idx').on(t.kind, t.ownership)])
+
+// ───────────────────────────────────────────────────── officeholders
+//
+// Role first, person second.
+//
+// A directory of notable people is a defamation and privacy problem wearing a
+// product's clothes: no publish gate protects you, because the harm lands on one
+// identifiable human. What IS legitimate and useful is who currently holds a
+// PUBLIC OFFICE, in their public capacity — because the citizen's real question
+// is "who do I complain to?", and that is a question about the office.
+//
+// So the row is anchored to an agency and a role. The person is an attribute of
+// the role, with dates, exactly as `succeeded_by_id` treats a superseded body.
+// Nothing personal beyond the name and the office belongs here.
+
+export const officeholder = pgTable('officeholder', {
+  id: serial('id').primaryKey(),
+  agencyId: integer('agency_id').notNull()
+    .references(() => agency.id, { onDelete: 'cascade' }),
+  roleEn: text('role_en').notNull(),          // 'Chief District Officer'
+  roleNe: text('role_ne'),
+  personName: text('person_name'),            // null = post vacant, which is worth showing
+  fromDate: date('from_date'),
+  toDate: date('to_date'),                    // null = current, as far as we know
+  contactPublic: text('contact_public'),       // only an official, published office line
+  sourceId: integer('source_id').references(() => source.id),
+  confidence: integer('confidence').notNull().default(50),
+  published: boolean('published').notNull().default(false),
+  note: text('note'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index('officeholder_agency_idx').on(t.agencyId, t.toDate),
 ])
